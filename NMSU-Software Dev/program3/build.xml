@@ -1,0 +1,214 @@
+<!-- Sample Ant build file for running IglooScore under JaCoCo -->
+<!-- Jonathan Cook, 17 Sep 2015 -->
+<project name="iglooscore" default="jacocoreport" xmlns:jacoco="antlib:org.jacoco.ant">
+
+   <!-- property to allow ant to find jacoco: CHANGE THE PATH to point to yours -->
+   <property name="jacocodir" location="C:\Users\Christian\Desktop\Google_Drive\Classcodefiles\NMSU-CS371\Jacoco-0.7.9\lib"/>
+
+    <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+      <classpath path="${jacocodir}/jacocoant.jar"/>
+   </taskdef>
+
+   <!-- standard compile task, but turn debugging on for source viewing -->
+   <target name="compile" description="compile the source">
+      <javac srcdir="." includeantruntime="false" debug="true"/>
+   </target>
+
+   <!-- tests if new jacoco run is needed by checking if the jacoco.exec file is
+        newer than the class files or this build file -->
+   <target name="checkRun">
+      <uptodate property="run.notneeded" targetfile="jacoco.exec">
+         <srcfiles dir="." includes="*.class build.xml" />
+      </uptodate>
+   </target>
+
+   <!-- run program under jacoco: this example has two runs, you'll need to perhaps
+        modify them, and then add more; this only runs if needed -->
+   <target name="jacocorun" depends="compile,checkRun" unless="run.notneeded">
+      <delete>
+         <!-- must delete coverage data file to start afresh (otherwise coverage accumulates) -->
+         <fileset dir="." includes="jacoco.exec"/>
+      </delete>
+
+   <!-- 1st program -->
+   <!-- initial test -->
+      <echo message="TEST IglooScore1: 8 9 6"/>
+      <java classname="IglooScore1" fork="true">
+         <arg value="8"/><arg value="9"/><arg value="6"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- score1 = score2; line 42 -->
+      <echo message="TEST IglooScore1: 8 8 6"/>
+      <java classname="IglooScore1" fork="true">
+         <arg value="8"/><arg value="8"/><arg value="6"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- args.length!=3; lines 53-54 -->
+      <echo message="TEST IglooScore1: 7 7"/>
+      <java classname="IglooScore1" fork="true">
+         <arg value="7"/><arg value="7"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- arguments are not integers;lines 60-62 -->
+      <echo message="TEST IglooScore1: 8 8 5.5"/>
+      <java classname="IglooScore1" fork="true">
+         <arg value="8"/><arg value="8"/><arg value="5.5"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- s>score3; line 43 -->
+      <echo message="TEST IglooScore1: 2 2 6"/>
+      <java classname="IglooScore1" fork="true">
+         <arg value="2"/><arg value="2"/><arg value="6"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+
+   <!-- 2nd program -->
+   <!-- initial test  -->
+      <echo message="TEST IglooScore2: 8 9 6"/>
+      <java classname="IglooScore2" fork="true">
+         <arg value="8"/><arg value="9"/><arg value="6"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- score1 < score2 && score1 < score3; lines 39-41 -->
+      <echo message="TEST IglooScore2: 8 9 10"/>
+      <java classname="IglooScore2" fork="true">
+         <arg value="8"/><arg value="9"/><arg value="10"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- score2 < score1 && score2 < score3; lines 42-44 -->
+      <echo message="TEST IglooScore2: 8 7 10"/>
+      <java classname="IglooScore2" fork="true">
+         <arg value="8"/><arg value="7"/><arg value="10"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- score2 < score1 && score2 > score3; lines 42-44 -->
+      <echo message="TEST IglooScore2: 8 7 6"/>
+      <java classname="IglooScore2" fork="true">
+         <arg value="8"/><arg value="7"/><arg value="6"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- score3 < score1 && score3 > score2; lines 45-47 -->
+      <echo message="TEST IglooScore2: 8 6 7"/>
+      <java classname="IglooScore2" fork="true">
+         <arg value="8"/><arg value="6"/><arg value="7"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- score3 > score1 && score3 < score2; lines 45-47 -->
+      <echo message="TEST IglooScore2: 7 9 8"/>
+      <java classname="IglooScore2" fork="true">
+         <arg value="7"/><arg value="9"/><arg value="8"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- score3 < score1 && score3 < score2; lines 45-47 -->
+      <echo message="TEST IglooScore2: 9 8 8"/>
+      <java classname="IglooScore2" fork="true">
+         <arg value="9"/><arg value="8"/><arg value="8"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- all scores are equal; lines 48-50 -->
+      <echo message="TEST IglooScore2: 8 8 8"/>
+      <java classname="IglooScore2" fork="true">
+         <arg value="8"/><arg value="8"/><arg value="8"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- args.length != 3; lines 59-61 -->
+      <echo message="TEST IglooScore2: 8 8"/>
+      <java classname="IglooScore2" fork="true">
+         <arg value="8"/><arg value="8"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- args==null; lines 59-61 -->
+      <echo message="TEST IglooScore2: null"/>
+      <java classname="IglooScore2" fork="true">
+         <arg value=""/><arg value=""/><arg value=""/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- exception; lines 67-69 -->
+      <echo message="TEST IglooScore2: 8 8 5.2"/>
+      <java classname="IglooScore2" fork="true">
+         <arg value="8"/><arg value="8"/><arg value="5.2"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- s1<0; lines 71-73 -->
+      <echo message="TEST IglooScore2: -1 8 8"/>
+      <java classname="IglooScore2" fork="true">
+         <arg value="-1"/><arg value="8"/><arg value="8"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- s1>50; lines 71-73 -->
+      <echo message="TEST IglooScore2: 51 8 8"/>
+      <java classname="IglooScore2" fork="true">
+         <arg value="51"/><arg value="8"/><arg value="8"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- s2<0; lines 71-73 -->
+      <echo message="TEST IglooScore2: 8 -1 8"/>
+      <java classname="IglooScore2" fork="true">
+         <arg value="8"/><arg value="-1"/><arg value="8"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- s2>50; lines 71-73 -->
+      <echo message="TEST IglooScore2: 8 51 8"/>
+      <java classname="IglooScore2" fork="true">
+         <arg value="8"/><arg value="51"/><arg value="8"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- s3<0; lines 71-73 -->
+      <echo message="TEST IglooScore2: 8 8 -1"/>
+      <java classname="IglooScore2" fork="true">
+         <arg value="8"/><arg value="8"/><arg value="-1"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- s3>50; lines 71-73 -->
+      <echo message="TEST IglooScore2: 8 8 51"/>
+      <java classname="IglooScore2" fork="true">
+         <arg value="8"/><arg value="8"/><arg value="51"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- s1<0 || s1>50 || s2<0 || s2>50 || s3<0 || s3>50; lines 71-73 -->
+      <echo message="TEST IglooScore2: 51 51 51"/>
+      <java classname="IglooScore2" fork="true">
+         <arg value="51"/><arg value="51"/><arg value="51"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   <!-- s1<0 || s1>50 || s2<0 || s2>50 || s3<0 || s3>50; lines 71-73 -->
+      <echo message="TEST IglooScore2: -1 -1 -1"/>
+      <java classname="IglooScore2" fork="true">
+         <arg value="-1"/><arg value="-1"/><arg value="-1"/>
+         <jvmarg line="-javaagent:${jacocodir}/jacocoagent.jar"/>
+      </java>
+   </target>
+
+   <!-- tests if new jacoco report needs generated by checking if top report file
+        (index.html) is newer than the run data file (jacoco.exec) -->
+   <target name="checkReport">
+      <uptodate property="report.notneeded" targetfile="report/index.html" srcfile="jacoco.exec" />
+   </target>
+
+   <!-- generate a new jacoco report from a new data file; only runs if needed -->
+   <target name="jacocoreport" depends="jacocorun,checkReport" unless="report.notneeded">
+      <jacoco:report>
+         <executiondata>
+            <file file="jacoco.exec"/>
+         </executiondata>
+         <structure name="iglooscore">
+            <classfiles>
+               <fileset dir="."/>
+            </classfiles>
+            <sourcefiles encoding="UTF-8">
+               <fileset dir="."/>
+            </sourcefiles>
+         </structure>
+         <html destdir="report"/>
+      </jacoco:report>
+   </target>
+
+   <!-- clean up by removing all generated files; do "ant clean" to start afresh -->
+   <target name="clean">
+      <delete>
+         <fileset dir="." includes="*.class jacoco.exec"/>
+      </delete>
+      <delete dir="report" />
+   </target>
+
+</project>

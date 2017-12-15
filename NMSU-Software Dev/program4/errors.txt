@@ -1,0 +1,13 @@
+Circle.java--
+
+line 33: radius needs to equal radius * factor
+Test Case: simpleScale
+
+line 46: instead of xOffset, use yOffset
+test case: simpleMoveNegative abd simpleMove
+
+Circle2.java--
+
+line 8: x and y parameters swapped
+test case: simpleMove and simpleMoveNegative
+
