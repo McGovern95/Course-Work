@@ -1,0 +1,71 @@
+/*
+ * Program which loops from 1 -9999 and outputs number in a different language
+ * @author Christian McGovern
+ * @assignments: ICS 212 assignment #8
+ * @date 9/14/2015
+ *
+ */
+
+ #include <stdio.h>
+
+int main() {
+
+   printf("This program will count in Japanese from 1 to 9999. \n");
+
+   int japNum = 0;
+   int counter = 1;
+
+  for (counter = 1; counter < 10; counter) {
+     printf("i%", counter);
+   
+  }
+
+   for (japNum = 1; japNum < 10; japNum++) {
+   
+   
+   
+      switch(japNum) {
+         case '1': case 1:
+            puts("iti");
+            break;
+         case '2': case 2:
+            puts("ni");
+            break;
+         case '3': case 3:
+            puts("san");
+            break;
+         case '4': case 4:
+            puts("yon");
+            break;
+         case '5': case 5:
+            puts("go");
+            break;
+         case '6': case 6:
+            puts("roku");
+            break;
+         case '7': case 7:
+            puts("nana");
+            break;
+         case '8': case 8:
+            puts("hati");
+            break;
+         case '9': case 9:
+            puts("kyuu");
+            break;
+         case '10': case 10:
+            puts("jyuu");
+      }//end of switch
+   
+   
+   
+      printf(" = %s\n", japNum);
+   } //end of for
+
+
+
+
+
+
+
+   return 0;
+}//end of main

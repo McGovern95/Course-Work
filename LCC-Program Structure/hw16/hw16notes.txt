@@ -1,0 +1,12 @@
+
+int (*array[SIZE})(int, int) = {add, NULL, sub, multi, div};
+
+int add( int x, int y) {
+  return x + y;
+}
+
+int num1 = args[1][0] - '0';
+int num2 = args[3][0] - '0';
+int index = args[2][0] - '+';
+
+int results = array[index][num1, num2];

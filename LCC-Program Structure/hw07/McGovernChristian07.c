@@ -1,0 +1,55 @@
+/*
+ * Program which will display another languages number based on user input
+ * @author Christian McGovern
+ * @assignment ICS 212 Assignment #7
+ * date: 9/10/2105
+ *
+ */
+ 
+#include <stdio.h> 
+
+int main() {
+
+  char number = '0';
+
+  printf("This program will output a Japanese number in Romanji of your choice \n");
+  printf("Please enter a number between 0-9: ");
+  number = getchar();
+
+    switch(number) {
+    case 'A': case '0':
+      puts("rei");
+      break;
+    case 'B': case '1':
+      puts("iti");
+      break;
+    case 'C': case '2':
+      puts("ni");
+      break;
+    case 'D': case '3':
+      puts("san");
+      break;
+    case 'E': case '4':
+      puts("si/yon");
+      break;
+    case 'F': case '5':
+      puts("go");
+      break;
+    case 'G': case '6':
+      puts("roku");
+      break;
+    case 'H': case '7':
+      puts("siti/nana");
+      break;
+    case 'I': case '8':
+      puts("hati");
+      break;
+    case 'J': case '9':
+      puts("ku/kyuu");
+      break;
+    default:
+      printf("ERROR: '%c'  is not a digit in the range of 0-9. \n", number);
+      break;
+    }
+    return 0;   
+}   

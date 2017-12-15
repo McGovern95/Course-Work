@@ -1,0 +1,104 @@
+/*
+  Simulates shuffling a deck of cards 
+  using structures and typedef 
+  by initializing, shuffling, and displaying the card deck
+*/
+
+#include<stdio.h>
+#include <time.h> //time function
+#include <stdlib.h> //random number generator functions
+#define MAX 9
+#define MAX_CARDS 52
+#define MAX_RANKS 13
+#define MAX_SUITS 4
+#define ROWS 3 //number of rows to display in output
+#define MAX_COLOR 4
+
+//structure definition
+struct card{ 
+  char *rank;    
+  char suit[MAX];
+  char *color;   
+};
+typedef struct card Card;
+
+//array of pointers to strings for ranks
+char *ranks[MAX_RANKS] = {"Ace", "Two", "Three", "Four", "Five", "Six", "Seven", 
+			  "Eight", "Nine", "Ten", "Jack", "Queen", "King"};
+
+//two-dimensional array of strings for suits
+char suits[MAX_SUITS][MAX] = {"Club", "Diamonds", "Hearts", "Spades"};
+
+char *color[MAX_COLOR] = {"(black)", "(red)", "(red)", "(black)"};
+
+void initialize(Card []);
+void shuffle(Card []);
+void display(const Card[]);
+
+int main(){
+  char newline = '\n'; //to repeat while loop
+  //declare an array of 52 cards
+  Card deck[MAX_CARDS] = {"",""};
+  initialize(deck);
+  printf("Display an ordered deck of cards:\n");
+  display(deck);
+  while('\n' == newline){
+    printf("\nshuffling deck ... \n");
+    shuffle(deck);
+    display(deck);
+    printf("Would you like to shuffle again?\nIf so, press \"Enter\" key. If not, press any other key. ");
+    newline = getchar();
+  }
+  return 0;
+}
+
+/*
+  initialize the deck of cards to string values
+  deck: an array of structure cards 
+*/
+void initialize(Card deck[]){
+  int i = 0;
+  for(i=0;i<MAX_CARDS;i++){
+    deck[i].rank = ranks[i%MAX_RANKS];
+    strncpy(deck[i].suit, suits[i/MAX_RANKS], MAX);
+    deck[i].color = color[i/MAX_RANKS];
+  }
+}
+
+/*
+  use the pseudo-random number generator to shuffle the cards
+  deck: an array of structure cards 
+*/
+void shuffle(Card deck[]){
+  int swapper = 0; //index of card to be swapped
+  int i = 0; //counter
+  Card temp = {"", ""}; //temp holding place for swap
+  srand(time(NULL)); //seed the random numbers with current time
+  for(i=0;i<MAX_CARDS;i++){
+    //generate a pseudo-random number from 0 to 51
+    swapper = rand() % MAX_CARDS; 
+    //swap current card with da swapper
+    temp = deck[i];
+    deck[i] = deck[swapper];
+    deck[swapper] = temp;
+  }
+}
+
+/*
+  display the deck of cards
+  deck: an array of structure cards 
+*/
+void display(const Card deck[]){
+  int i = 0;
+  for(i=0;i<MAX_CARDS;i++){
+    printf("%5s of %-12s %s", deck[i].rank, deck[i].suit, deck[i].color);
+    //put in a newline every %x loops
+    if(0==((i+1)%ROWS)){
+      printf("\n");
+    }
+  }
+}
+
+/*
+
+*/

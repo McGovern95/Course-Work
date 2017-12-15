@@ -1,0 +1,8 @@
+program: stringinput.o linkedlist.o
+	gcc stringinput.o linkedlist.o -o program
+
+stringinput.o: stringinput.c stringinput.h
+	gcc -c stringinput.c
+
+linkedlist.o: linkedlist.c stringinput.h
+	gcc -c linkedlist.c

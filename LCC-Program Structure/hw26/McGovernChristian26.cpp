@@ -1,0 +1,3 @@
+/*
+  Program which demonstrates virtual functions and polymorphism
+ */
