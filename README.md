@@ -9,6 +9,8 @@ All academic course work I've done. These include assignments and projects from 
 
 -CS 273: Machine Programming & Orgranization 
 
+-CS 370: Compilers and Automata Theory
+
 -CS 371: Software Development
 
 -CS 482: Database Management 
