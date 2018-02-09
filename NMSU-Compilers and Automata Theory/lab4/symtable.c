@@ -10,6 +10,10 @@
 #include<malloc.h>
 #include<string.h>
 #include<stdlib.h>
+#include "symtable.h"
+
+int size = 0;
+/*
 int size = 0;
 void Insert();
 void Display();
@@ -22,7 +26,9 @@ struct SymbTab{
 	struct SymbTab *next;
 };
 struct SymbTab *first,*last;
+*/
 
+/*
 void main(){
 
 	int op,y;
@@ -69,6 +75,7 @@ void main(){
 	}//end do
 	while(op<6);
 }//end main()
+*/
 
 void Insert(){
 
