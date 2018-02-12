@@ -77,18 +77,18 @@ void main(){
 }//end main()
 */
 
-void Insert(){
+void Insert(char * symbol, int STACKP){
 
 	int n;
 	char l[10];
 
-	printf("\n\tEnter the label : ");
-	scanf("%s",l);
-	n = Search(l);
+	//printf("\n\tEnter the label : ");
+	//scanf("%s",l);
+	//n = Search(l);
 
-	if(n==1)
-		printf("\n\tThe label exists already in the symbol table\n\tDuplicate can.t be inserted");
-	else{
+	//if(n==1)
+	//	printf("\n\tThe label exists already in the symbol table\n\tDuplicate can.t be inserted");
+	//else{
 
 		struct SymbTab *p;
 		p = malloc(sizeof(struct SymbTab));
@@ -109,12 +109,12 @@ void Insert(){
 			last = p;
 			}
         size++;
-	}//end else
+	//}//end else
 
-    printf("\n\tLabel inserted\n");
+    //printf("\n\tLabel inserted\n");
 }//end Insert()
 
-void Display(){
+/*void Display(){
 
 	int i;
 	struct SymbTab *p;
@@ -125,7 +125,7 @@ void Display(){
 		printf("\t%s\t\t%s\t\t%d\n",p->label,p->symbol,p->addr);
 		p = p->next;
 	}
-}//end Display()
+}//end Display()*/
 
 int Search(char lab[]){
 
@@ -142,7 +142,7 @@ int Search(char lab[]){
 	return flag;
 }//end Search()
 
-void Modify(){
+/*void Modify(){
 
 	char l[10],nl[10];
 	int add,choice,i,s;
@@ -259,4 +259,10 @@ void Delete(){
 	Display();
 	}//end else
 }//end Delete()
+*/
+char fetch(char * symbol){
+  
+return symbol;
+
+}//end fetch()
 

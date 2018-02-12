@@ -1,11 +1,12 @@
 #ifndef SYMTABLE
 #define SYMTABLE
 
-void Insert();
-void Display();
-void Delete();
+void Insert(char *, int);
+//void Display();
+//void Delete();
 int Search(char lab[]);
-void Modify();
+//void Modify();
+char fetch(char *);
 struct SymbTab{
 	char label[10],symbol[10];
 	int addr;

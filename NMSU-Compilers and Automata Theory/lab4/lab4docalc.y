@@ -19,7 +19,7 @@
    based on context, we have YACC do the correct memmory look up or the storage depending
    on position
 
-   Shaun Cooper
+   Shaun Cooper | INT VARIABLE ';' '\n'
     January 2015
 
    problems  fix unary minus, fix parenthesis, add multiplication
@@ -39,8 +39,10 @@
 #include <ctype.h>
 #include "lex.yy.c"
 #include "symtable.h"
+#define MAXSTACK 26
 
-int regs[26];
+int regs[MAXSTACK];
+int STACKP = 0;
 int base, debugsw;
 
 void yyerror (s)  /* Called by yyparse on error */
@@ -54,10 +56,17 @@ void yyerror (s)  /* Called by yyparse on error */
 
 /*  defines the start symbol, what values come back from LEX and how the operators are associated  */
 
-%start list
+%start program
 
-%token INTEGER
-%token  VARIABLE
+%union{
+	int value;
+	char * string;
+}
+
+%token <value> INTEGER
+%token <string> VARIABLE 
+%token INT
+%type <value> expr stat
 
 %left '|'
 %left '&'
@@ -67,6 +76,14 @@ void yyerror (s)  /* Called by yyparse on error */
 
 
 %%	/* end specs, begin rules */
+program  : decls list
+    	 ;
+
+decls  : /* empty */
+ 		| dec decls
+ 		;
+dec 	: INT VARIABLE ';' '\n'
+
 
 list	:	/* empty */
 	|	list stat '\n'
@@ -77,7 +94,7 @@ list	:	/* empty */
 stat	:	expr
 			{ fprintf(stderr,"the answer is %d\n", $1); }
 	|	VARIABLE '=' expr
-			{ regs[$1] = $3; }
+			{ regs[fetch($1)] = $3; }//fetcharray 
 	;
 
 expr	:	'(' expr ')'
@@ -100,7 +117,7 @@ expr	:	'(' expr ')'
 	|   '-' expr  %prec UMINUS //removed the expr before the '-'
 			{ $$ = -$2; }
 	|	VARIABLE
-			{ $$ = regs[$1]; fprintf(stderr,"found a variable value = %d\n",$1); }
+			{ $$ = regs[fetch($1)]; fprintf(stderr,"found a variable value = %s\n",$1); }
 	|	INTEGER {$$=$1; fprintf(stderr,"found an integer\n");}
 	;
 

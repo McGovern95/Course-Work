@@ -47,17 +47,28 @@ extern int yydebug;
   {
     INTEGER = 258,
     VARIABLE = 259,
-    UMINUS = 260
+    INT = 260,
+    UMINUS = 261
   };
 #endif
 /* Tokens.  */
 #define INTEGER 258
 #define VARIABLE 259
-#define UMINUS 260
+#define INT 260
+#define UMINUS 261
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+typedef union YYSTYPE YYSTYPE;
+union YYSTYPE
+{
+#line 61 "lab4docalc.y" /* yacc.c:1909  */
+
+	int value;
+	char * string;
+
+#line 71 "y.tab.h" /* yacc.c:1909  */
+};
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
