@@ -4,8 +4,7 @@ All academic course work I've done. These include assignments and projects from 
 -ICS 211: Computer Science II
 
 -ICS 212: Program Structure 
-
--ICS 211: Computer Science II 
+ 
 # New Mexico State University
 -CS 271: OO Programming 
 
