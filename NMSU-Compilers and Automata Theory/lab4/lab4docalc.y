@@ -19,7 +19,7 @@
    based on context, we have YACC do the correct memmory look up or the storage depending
    on position
 
-   Shaun Cooper | INT VARIABLE ';' '\n'
+    Shaun Cooper 
     January 2015
 
    problems  fix unary minus, fix parenthesis, add multiplication
@@ -27,7 +27,8 @@
 */
 
 /*
-  
+  Lab4, extended grammer to accept letter/number combinations. 
+  Also includes symbol table implementation.
 
   Christian McGovern
   Feb 2018
@@ -82,7 +83,24 @@ program  : decls list
 decls  : /* empty */
  		| dec decls
  		;
-dec 	: INT VARIABLE ';' '\n'
+dec 	: INT VARIABLE{
+	        //Search and Insert code here	
+
+	        if(Search($2)){
+	           fprintf(stderr, "Error line %d: Symbol %s already defined\n", lineno, $2);
+	        }
+	        else{
+	        	if(STACKP >= MAXSTACK)
+	        	   fprintf(stderr, "Error line %d: no more register space\n", lineno);
+	        
+	        	else{
+	        	Insert($2,STACKP);
+	        	STACKP++;
+	            }
+	        }
+
+	      }//end VARIABLE 
+     ';' '\n'
 
 
 list	:	/* empty */
@@ -93,8 +111,17 @@ list	:	/* empty */
 
 stat	:	expr
 			{ fprintf(stderr,"the answer is %d\n", $1); }
-	|	VARIABLE '=' expr
-			{ regs[fetch($1)] = $3; }//fetcharray 
+	|	VARIABLE{
+				if(Search($1)){
+				 fprintf(stderr, "Variable %s on line %d defined\n", $1, lineno);
+				}
+				else
+					fprintf(stderr, "Variable %s on line %d not defined \n", $1, lineno);
+				
+	} '=' expr
+			{ regs[fetch($1)] = $4; }//fetcharray
+
+
 	;
 
 expr	:	'(' expr ')'
@@ -117,7 +144,16 @@ expr	:	'(' expr ')'
 	|   '-' expr  %prec UMINUS //removed the expr before the '-'
 			{ $$ = -$2; }
 	|	VARIABLE
-			{ $$ = regs[fetch($1)]; fprintf(stderr,"found a variable value = %s\n",$1); }
+	          { if(Search($1)){
+
+	                 $$ = regs[fetch($1)];  
+                }
+               else{
+                  fprintf(stderr,"Variable %s does not exist. Defaulting to zero\n", $1);
+                  $$ = 0;
+               }
+
+	          }
 	|	INTEGER {$$=$1; fprintf(stderr,"found an integer\n");}
 	;
 

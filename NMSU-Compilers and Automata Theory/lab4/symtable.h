@@ -4,11 +4,11 @@
 void Insert(char *, int);
 //void Display();
 //void Delete();
-int Search(char lab[]);
+int Search(char *);
 //void Modify();
-char fetch(char *);
+int fetch(char *);
 struct SymbTab{
-	char label[10],symbol[10];
+	char * symbol;
 	int addr;
 	struct SymbTab *next;
 };

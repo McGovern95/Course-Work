@@ -13,6 +13,7 @@
 #include "symtable.h"
 
 int size = 0;
+
 /*
 int size = 0;
 void Insert();
@@ -76,8 +77,12 @@ void main(){
 	while(op<6);
 }//end main()
 */
-
-void Insert(char * symbol, int STACKP){
+/*
+ * Inserts a symbol into symtable
+ * Param: sym-yacc, STACKP - counter from yacc 
+ *
+*/
+void Insert(char * sym, int STACKP){
 
 	int n;
 	char l[10];
@@ -89,15 +94,15 @@ void Insert(char * symbol, int STACKP){
 	//if(n==1)
 	//	printf("\n\tThe label exists already in the symbol table\n\tDuplicate can.t be inserted");
 	//else{
-
 		struct SymbTab *p;
+		
 		p = malloc(sizeof(struct SymbTab));
-
-		strcpy(p->label,l);
-		printf("\n\tEnter the symbol : ");
-		scanf("%s",p->symbol);
-		printf("\n\tEnter the address : ");
-		scanf("%d",&p->addr);
+		//printf("\n\tEnter the symbol : ");
+		p->symbol = sym;
+		//scanf("%s",p->symbol);
+		//printf("\n\tEnter the address : ");
+		p->addr = STACKP;
+		//scanf("%d",&p->addr);
 		p->next = NULL;
 
 		if(size==0){
@@ -127,7 +132,7 @@ void Insert(char * symbol, int STACKP){
 	}
 }//end Display()*/
 
-int Search(char lab[]){
+int Search(char * sym){
 
 	int i,flag = 0;
 	struct SymbTab *p;
@@ -135,7 +140,7 @@ int Search(char lab[]){
 
 	for(i=0;i<size;i++){
 
-		if(strcmp(p->label,lab)==0)
+		if(strcmp(p->symbol,sym)==0)
 			flag = 1;
 		    p = p->next;
     }
@@ -260,9 +265,19 @@ void Delete(){
 	}//end else
 }//end Delete()
 */
-char fetch(char * symbol){
+int fetch(char * sym){
   
-return symbol;
+    int i,address;
+	struct SymbTab *p;
+	p = first;
+
+	for(i=0;i<size;i++){
+
+		if(strcmp(p->symbol,sym)==0)
+			address = p->addr;
+		 p = p->next;
+    }
+	return address;
 
 }//end fetch()
 

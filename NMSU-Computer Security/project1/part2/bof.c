@@ -5,7 +5,9 @@ char pass[] = "abcd";
 int validate_user() {
    char buff[8];
    printf("Enter your password:\n -> ");
+   printf("here alex");
    gets(buff);
+   printf("here alex");
    return !strcmp(buff, pass);
 }
 

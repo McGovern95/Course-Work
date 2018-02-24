@@ -21,27 +21,21 @@ digit 		[0-9]
 id 			{letter}({letter}|{digit})*
 
 %%
+
 int 		{if (mydebug) fprintf(stderr,"int found\n"); 
             							    return(INT);}
-
-
 {id}		{if (mydebug) fprintf(stderr,"Variable found\n"); 
               yylval.string=strdup(yytext);return(VARIABLE);}
-
 [0-9][0-9]*	{if (mydebug) fprintf(stderr,"Digit found\n"); 
                        yylval.value=atoi((const char *)yytext); return(INTEGER);}
-
 [ \t]		{if (mydebug) fprintf(stderr,"Whitespace found\n");}
-
+[;]		        { if (mydebug) fprintf(stderr, "return a semicolon %c\n", *yytext);
+					   return (*yytext);}
 [=()\-+*/%&|;] 	{ if (mydebug) fprintf(stderr,"return a token %c\n",*yytext); //added () to set
                        return (*yytext);}
-[;]		     {if (mydebug) fprintf(stderr, "return a semicolon %c\n", *yytext);
-					   return (*yytext);}
- 
 \n 		{ if (mydebug) fprintf(stderr,"cariage return %c\n",*yytext);
 					   lineno++; 
                        return (*yytext);}
-
 %%
 
 int yywrap(void)
