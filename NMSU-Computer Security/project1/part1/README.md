@@ -1,4 +1,4 @@
-#using the cipher program:
+  #using the cipher program:
 
 1) "make" command to compile everything
 2) ./part1 to run the program
