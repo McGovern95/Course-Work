@@ -43,7 +43,7 @@ int dictCompute(){
 
    
 }//end while
-    //printf("total words matched with dictionary.txt: %d\n ",score);
+    printf("total words matched with dictionary.txt: %d\n ",score);
     return score;
 }
 

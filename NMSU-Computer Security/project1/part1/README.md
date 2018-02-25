@@ -4,7 +4,7 @@
 2) ./part1 to run the program
 3) The ciphertext is displayed.
 4) Enter your cipher - note that it should be in freqruency(greatest to least) order, not alphabetical.
-5) The program displays and sorts cipher based on your key, also displays letter freq. 
+5) The program displays and sorts cipher based on your key, also displays letter freq and the number of words found when compared against a dictionary. 
 6) Let the manual permutation begin!
 
 
