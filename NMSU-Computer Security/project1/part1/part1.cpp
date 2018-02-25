@@ -15,20 +15,24 @@
 
 int main(){
 
-	if(!computeFrequency())
+    printf("This program takes cipertext.txt, accepts a key, and sorts it\n\
+by the most frequent letters. If the correct key is given\n(from most to least\
+frequent letters) then the correct plain text will be given");
+
+	if(!computeFreq())
 		printf("Cipher key: \n\n");
 		printf("%s\n", cipher);
 
     while(true){
-	sortByFreq();
-	if(!manualDecrypt())
+	sortFreq();
+	if(!Decrypt())
 		printf("%s\n", plain);
 
 	//permute();
 	
-	printFrequency();
+	printFreq();
 
-	dictionarycompute();
+	dictCompute();
 	}//end while
 
 }//end main

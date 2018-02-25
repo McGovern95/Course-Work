@@ -1,4 +1,4 @@
-
+/*header file*/
 #ifndef CIPHERFUNCT_H
 #define CIPHERFUNCT_H
 
@@ -9,14 +9,14 @@
 
 extern int freq[26][3];
 extern int pos[26];
-extern char cipher[1000], plain[1000], key[27];
+extern char cipher[1000], plain[1000], key[26];
 
 void stringUpr(char *);
-int dictionarycompute();
-int computeFrequency();
-int printFrequency();
-int manualDecrypt();
-int sortByFreq();
+int dictCompute();
+int computeFreq();
+int printFreq();
+int Decrypt();
+int sortFreq();
 int permute();
 
 #endif

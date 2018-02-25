@@ -8,7 +8,7 @@
 
 int freq[26][3];
 int pos[26];
-char cipher[1000], plain[1000], key[27];
+char cipher[1000], plain[1000], key[26];
 
 /*code taken from- since standard c libary wasn't working: 
 http://www.includehelp.com/c-programs/c-program-to-convert-string-into-lower-and-upper-case.aspx
@@ -24,7 +24,7 @@ void stringUpr(char *s){
     }
 }//end stringUpr();
 
-int dictionarycompute(){
+int dictCompute(){
 
 	char str[10000];
 	int score;
@@ -37,7 +37,7 @@ int dictionarycompute(){
 		stringUpr(str);
 
 		if(strstr(plain, str)){
-			//printf("Word found: %s",str);
+			//printf("Word found: %s",str); not working 100%
 			score++;
 		}
 
@@ -47,7 +47,7 @@ int dictionarycompute(){
     return score;
 }
 
-int computeFrequency(){
+int computeFreq(){
 	FILE *ptr;
 	ptr = fopen("ciphertext.txt","r");
 	if(!ptr) return 1;
@@ -65,9 +65,9 @@ int computeFrequency(){
 
 	fclose(ptr);
 	return 0;
-}
+}//end computeFreq
 
-int printFrequency(){
+int printFreq(){
 	puts("Frequency Analysis");
 
 	puts("Letter		Frequency           Mapped");
@@ -82,9 +82,9 @@ int printFrequency(){
 }
 
 
-int manualDecrypt(){
+int Decrypt(){
 	
-	int i, k, tempInt, count, index;
+	int i, k, temp, count, index;
 	char tempChar;
 
 	puts("Enter your key (by order of most to least freq character \n\t\t EX: ETAOINSHRDLCUMWFGYPBVKJXQZ): \n");
@@ -103,9 +103,9 @@ int manualDecrypt(){
 	  for(k=0; k<26-i-1; k++){
 
 		if(freq[k][0] > freq[k+1][0]){
-			tempInt = freq[k][0];
+			temp = freq[k][0];
 			freq[k][0] = freq[k+1][0];
-			freq[k+1][0] = tempInt;
+			freq[k+1][0] = temp;
 			
 			tempChar = freq[k][1];
 			freq[k][1] = freq[k+1][1];
@@ -128,18 +128,18 @@ int manualDecrypt(){
 	return 0;
 }
 
-int sortByFreq(){
+int sortFreq(){
 
-     int tempInt, tempPos, i, k;
+     int tempInt, tempPos;
      char tempChar;
-     for(i=0; i<26;i++){
+     for(int i=0; i<26;i++){
           freq[i][0] = 'A' + i;
 	      freq[i][2] = i;
      }
 
-    for(i=0; i<26; i++){
+    for(int i=0; i<26; i++){
  
-	  for(k=0; k<26-i-1; k++){
+	  for(int k=0; k<26-i-1; k++){
 
 		if(freq[k][1] < freq[k+1][1]){
 			tempInt = freq[k][1];
@@ -169,7 +169,7 @@ int permute(){
               freq[k][2] = freq[k+1][2];
               freq[k+1][2] = temp;
 
-               newScore = dictionarycompute();
+               newScore = dictCompute();
 
                if(newScore > oldScore)
                	  oldScore = newScore;

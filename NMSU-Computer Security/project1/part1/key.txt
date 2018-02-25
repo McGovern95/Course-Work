@@ -2,6 +2,7 @@ Letter Freq key:
 ETAOINSHRDLCUMWFGYPBVKJXQZ
 
 True key:
+ETAOINSHRDLCUMWFGYPBVKJXQZ
 ETONISAHRCLMUGFDWVYKPBXJQZ
 
 
@@ -12,3 +13,13 @@ TOMAKEITHARDFORLARGECOMPANIESLIKEGOOGLEANDMICROSOFTTOGETBACKTHETRUSTTHEYLOSTEVEN
 IFTHEYSUCCEEDINLIMITINGGOVERNMENTSURVEILLANCEEVENIFTHEYSUCCEEDINIMPROVINGTHEIROW
 NINTERNALSECURITYTHEBESTTHEYLLBEABLETOSAYISWEHAVESECUREDOURSELVESFROMTHENSAEXCEP
 TFORTHEPARTSTHATWEEITHERDONTKNOWABOUTORCANTTALKABOUT
+
+I was able to find the true key using my program and refering to Answer #2 from this link on good manuel permutation techniques: 
+https://crypto.stackexchange.com/questions/42944/to-decrypt-a-cipher-text-encrypted-using-keyed-substitution
+
+
+I first focues on swapping the ETAOINS because those were the most common letters and would increase/decrease my score the most when changed, then I focused on the first couple
+of words in the cipher and from there it was easy to permutate the rest by just eyeballing it. 
+
+
+
