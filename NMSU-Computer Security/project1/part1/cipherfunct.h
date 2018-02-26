@@ -15,7 +15,7 @@ void stringUpr(char *);
 int dictCompute();
 int computeFreq();
 int printFreq();
-int Decrypt();
+int decrypt();
 int sortFreq();
 int permute();
 

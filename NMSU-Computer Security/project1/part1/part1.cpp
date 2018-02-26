@@ -17,18 +17,18 @@ int main(){
 
     printf("This program takes cipertext.txt, accepts a key, and sorts it\n\
 by the most frequent letters. If the correct key is given\n(from most to least\
-frequent letters) then the correct plain text will be given");
+frequent letters) then the correct plain text will be given\n\n");
 
 	if(!computeFreq())
 		printf("Cipher key: \n\n");
 		printf("%s\n", cipher);
 
-    while(true){
+    while(1){
 	sortFreq();
-	if(!Decrypt())
+	if(!decrypt())
 		printf("%s\n", plain);
 
-	//permute();
+	//permute();//not working
 	
 	printFreq();
 
