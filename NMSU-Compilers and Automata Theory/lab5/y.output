@@ -1,0 +1,1437 @@
+Terminals unused in grammar
+
+   '|'
+   '&'
+   '%'
+   UMINUS
+
+
+State 102 conflicts: 1 reduce/reduce
+State 114 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: P $end
+
+    1 P: DL
+
+    2 DL: DEC
+    3   | DEC DL
+
+    4 DEC: VARDEC
+    5    | FUNDEC
+
+    6 VARDEC: typespec ID ';'
+    7       | typespec ID '[' NUM ']' ';'
+
+    8 typespec: INT
+    9         | VOID
+
+   10 FUNDEC: typespec ID '(' params ')' compoundstmt
+
+   11 params: VOID
+   12       | paramlist
+
+   13 paramlist: param
+   14          | paramlist ',' param
+
+   15 param: typespec ID
+   16      | typespec ID '[' ']'
+
+   17 compoundstmt: '{' localdeclarations statementlist '}'
+
+   18 localdeclarations: VARDEC
+   19                  | localdeclarations VARDEC
+
+   20 statementlist: %empty
+   21              | statement statementlist
+
+   22 statement: expressionstmt
+   23          | compoundstmt
+   24          | selectionstmt
+   25          | iterationstmt
+   26          | assignmentstmt
+   27          | returnstmt
+   28          | readstmt
+   29          | writestmt
+
+   30 expressionstmt: expression ';'
+   31               | ';'
+
+   32 assignmentstmt: var '=' expressionstmt ';'
+
+   33 selectionstmt: IF '(' expression ')' statement
+   34              | IF '(' expression ')' statement ELSE statement
+
+   35 iterationstmt: WHILE '(' expression ')' statement
+
+   36 returnstmt: RETURN ';'
+   37           | RETURN expression ';'
+
+   38 readstmt: READ var ';'
+
+   39 writestmt: WRITE expression ';'
+
+   40 expression: simpleexpression
+   41           | var '=' simpleexpression
+
+   42 var: ID
+   43    | ID '[' expression ']'
+
+   44 simpleexpression: additiveexpression
+   45                 | additiveexpression relop simpleexpression
+
+   46 relop: LE
+   47      | '<'
+   48      | '>'
+   49      | GE
+   50      | EQ
+   51      | NE
+
+   52 additiveexpression: term
+   53                   | term addop additiveexpression
+
+   54 addop: '+'
+   55      | '-'
+
+   56 term: factor
+   57     | factor multop term
+
+   58 multop: '*'
+   59       | '/'
+
+   60 factor: '(' expression ')'
+   61       | NUM
+   62       | var
+   63       | call
+
+   64 call: ID '(' args ')'
+
+   65 args: arglist
+   66     | %empty
+
+   67 arglist: expression
+   68        | expression ',' arglist
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'%' (37)
+'&' (38)
+'(' (40) 10 33 34 35 60 64
+')' (41) 10 33 34 35 60 64
+'*' (42) 58
+'+' (43) 54
+',' (44) 14 68
+'-' (45) 55
+'/' (47) 59
+';' (59) 6 7 30 31 32 36 37 38 39
+'<' (60) 47
+'=' (61) 32 41
+'>' (62) 48
+'[' (91) 7 16 43
+']' (93) 7 16 43
+'{' (123) 17
+'|' (124)
+'}' (125) 17
+error (256)
+INT (258) 8
+VOID (259) 9 11
+IF (260) 33 34
+ELSE (261) 34
+WHILE (262) 35
+RETURN (263) 36 37
+READ (264) 38
+WRITE (265) 39
+LE (266) 46
+GE (267) 49
+EQ (268) 50
+NE (269) 51
+ID (270) 6 7 10 15 16 42 43 64
+NUM (271) 7 61
+UMINUS (272)
+
+
+Nonterminals, with rules where they appear
+
+$accept (36)
+    on left: 0
+P (37)
+    on left: 1, on right: 0
+DL (38)
+    on left: 2 3, on right: 1 3
+DEC (39)
+    on left: 4 5, on right: 2 3
+VARDEC (40)
+    on left: 6 7, on right: 4 18 19
+typespec (41)
+    on left: 8 9, on right: 6 7 10 15 16
+FUNDEC (42)
+    on left: 10, on right: 5
+params (43)
+    on left: 11 12, on right: 10
+paramlist (44)
+    on left: 13 14, on right: 12 14
+param (45)
+    on left: 15 16, on right: 13 14
+compoundstmt (46)
+    on left: 17, on right: 10 23
+localdeclarations (47)
+    on left: 18 19, on right: 17 19
+statementlist (48)
+    on left: 20 21, on right: 17 21
+statement (49)
+    on left: 22 23 24 25 26 27 28 29, on right: 21 33 34 35
+expressionstmt (50)
+    on left: 30 31, on right: 22 32
+assignmentstmt (51)
+    on left: 32, on right: 26
+selectionstmt (52)
+    on left: 33 34, on right: 24
+iterationstmt (53)
+    on left: 35, on right: 25
+returnstmt (54)
+    on left: 36 37, on right: 27
+readstmt (55)
+    on left: 38, on right: 28
+writestmt (56)
+    on left: 39, on right: 29
+expression (57)
+    on left: 40 41, on right: 30 33 34 35 37 39 43 60 67 68
+var (58)
+    on left: 42 43, on right: 32 38 41 62
+simpleexpression (59)
+    on left: 44 45, on right: 40 41 45
+relop (60)
+    on left: 46 47 48 49 50 51, on right: 45
+additiveexpression (61)
+    on left: 52 53, on right: 44 45 53
+addop (62)
+    on left: 54 55, on right: 53
+term (63)
+    on left: 56 57, on right: 52 53 57
+multop (64)
+    on left: 58 59, on right: 57
+factor (65)
+    on left: 60 61 62 63, on right: 56 57
+call (66)
+    on left: 64, on right: 63
+args (67)
+    on left: 65 66, on right: 64
+arglist (68)
+    on left: 67 68, on right: 65 68
+
+
+State 0
+
+    0 $accept: . P $end
+
+    INT   shift, and go to state 1
+    VOID  shift, and go to state 2
+
+    P         go to state 3
+    DL        go to state 4
+    DEC       go to state 5
+    VARDEC    go to state 6
+    typespec  go to state 7
+    FUNDEC    go to state 8
+
+
+State 1
+
+    8 typespec: INT .
+
+    $default  reduce using rule 8 (typespec)
+
+
+State 2
+
+    9 typespec: VOID .
+
+    $default  reduce using rule 9 (typespec)
+
+
+State 3
+
+    0 $accept: P . $end
+
+    $end  shift, and go to state 9
+
+
+State 4
+
+    1 P: DL .
+
+    $default  reduce using rule 1 (P)
+
+
+State 5
+
+    2 DL: DEC .
+    3   | DEC . DL
+
+    INT   shift, and go to state 1
+    VOID  shift, and go to state 2
+
+    $default  reduce using rule 2 (DL)
+
+    DL        go to state 10
+    DEC       go to state 5
+    VARDEC    go to state 6
+    typespec  go to state 7
+    FUNDEC    go to state 8
+
+
+State 6
+
+    4 DEC: VARDEC .
+
+    $default  reduce using rule 4 (DEC)
+
+
+State 7
+
+    6 VARDEC: typespec . ID ';'
+    7       | typespec . ID '[' NUM ']' ';'
+   10 FUNDEC: typespec . ID '(' params ')' compoundstmt
+
+    ID  shift, and go to state 11
+
+
+State 8
+
+    5 DEC: FUNDEC .
+
+    $default  reduce using rule 5 (DEC)
+
+
+State 9
+
+    0 $accept: P $end .
+
+    $default  accept
+
+
+State 10
+
+    3 DL: DEC DL .
+
+    $default  reduce using rule 3 (DL)
+
+
+State 11
+
+    6 VARDEC: typespec ID . ';'
+    7       | typespec ID . '[' NUM ']' ';'
+   10 FUNDEC: typespec ID . '(' params ')' compoundstmt
+
+    ';'  shift, and go to state 12
+    '['  shift, and go to state 13
+    '('  shift, and go to state 14
+
+
+State 12
+
+    6 VARDEC: typespec ID ';' .
+
+    $default  reduce using rule 6 (VARDEC)
+
+
+State 13
+
+    7 VARDEC: typespec ID '[' . NUM ']' ';'
+
+    NUM  shift, and go to state 15
+
+
+State 14
+
+   10 FUNDEC: typespec ID '(' . params ')' compoundstmt
+
+    INT   shift, and go to state 1
+    VOID  shift, and go to state 16
+
+    typespec   go to state 17
+    params     go to state 18
+    paramlist  go to state 19
+    param      go to state 20
+
+
+State 15
+
+    7 VARDEC: typespec ID '[' NUM . ']' ';'
+
+    ']'  shift, and go to state 21
+
+
+State 16
+
+    9 typespec: VOID .
+   11 params: VOID .
+
+    ')'       reduce using rule 11 (params)
+    $default  reduce using rule 9 (typespec)
+
+
+State 17
+
+   15 param: typespec . ID
+   16      | typespec . ID '[' ']'
+
+    ID  shift, and go to state 22
+
+
+State 18
+
+   10 FUNDEC: typespec ID '(' params . ')' compoundstmt
+
+    ')'  shift, and go to state 23
+
+
+State 19
+
+   12 params: paramlist .
+   14 paramlist: paramlist . ',' param
+
+    ','  shift, and go to state 24
+
+    $default  reduce using rule 12 (params)
+
+
+State 20
+
+   13 paramlist: param .
+
+    $default  reduce using rule 13 (paramlist)
+
+
+State 21
+
+    7 VARDEC: typespec ID '[' NUM ']' . ';'
+
+    ';'  shift, and go to state 25
+
+
+State 22
+
+   15 param: typespec ID .
+   16      | typespec ID . '[' ']'
+
+    '['  shift, and go to state 26
+
+    $default  reduce using rule 15 (param)
+
+
+State 23
+
+   10 FUNDEC: typespec ID '(' params ')' . compoundstmt
+
+    '{'  shift, and go to state 27
+
+    compoundstmt  go to state 28
+
+
+State 24
+
+   14 paramlist: paramlist ',' . param
+
+    INT   shift, and go to state 1
+    VOID  shift, and go to state 2
+
+    typespec  go to state 17
+    param     go to state 29
+
+
+State 25
+
+    7 VARDEC: typespec ID '[' NUM ']' ';' .
+
+    $default  reduce using rule 7 (VARDEC)
+
+
+State 26
+
+   16 param: typespec ID '[' . ']'
+
+    ']'  shift, and go to state 30
+
+
+State 27
+
+   17 compoundstmt: '{' . localdeclarations statementlist '}'
+
+    INT   shift, and go to state 1
+    VOID  shift, and go to state 2
+
+    VARDEC             go to state 31
+    typespec           go to state 32
+    localdeclarations  go to state 33
+
+
+State 28
+
+   10 FUNDEC: typespec ID '(' params ')' compoundstmt .
+
+    $default  reduce using rule 10 (FUNDEC)
+
+
+State 29
+
+   14 paramlist: paramlist ',' param .
+
+    $default  reduce using rule 14 (paramlist)
+
+
+State 30
+
+   16 param: typespec ID '[' ']' .
+
+    $default  reduce using rule 16 (param)
+
+
+State 31
+
+   18 localdeclarations: VARDEC .
+
+    $default  reduce using rule 18 (localdeclarations)
+
+
+State 32
+
+    6 VARDEC: typespec . ID ';'
+    7       | typespec . ID '[' NUM ']' ';'
+
+    ID  shift, and go to state 34
+
+
+State 33
+
+   17 compoundstmt: '{' localdeclarations . statementlist '}'
+   19 localdeclarations: localdeclarations . VARDEC
+
+    INT     shift, and go to state 1
+    VOID    shift, and go to state 2
+    IF      shift, and go to state 35
+    WHILE   shift, and go to state 36
+    RETURN  shift, and go to state 37
+    READ    shift, and go to state 38
+    WRITE   shift, and go to state 39
+    ID      shift, and go to state 40
+    NUM     shift, and go to state 41
+    ';'     shift, and go to state 42
+    '('     shift, and go to state 43
+    '{'     shift, and go to state 27
+
+    $default  reduce using rule 20 (statementlist)
+
+    VARDEC              go to state 44
+    typespec            go to state 32
+    compoundstmt        go to state 45
+    statementlist       go to state 46
+    statement           go to state 47
+    expressionstmt      go to state 48
+    assignmentstmt      go to state 49
+    selectionstmt       go to state 50
+    iterationstmt       go to state 51
+    returnstmt          go to state 52
+    readstmt            go to state 53
+    writestmt           go to state 54
+    expression          go to state 55
+    var                 go to state 56
+    simpleexpression    go to state 57
+    additiveexpression  go to state 58
+    term                go to state 59
+    factor              go to state 60
+    call                go to state 61
+
+
+State 34
+
+    6 VARDEC: typespec ID . ';'
+    7       | typespec ID . '[' NUM ']' ';'
+
+    ';'  shift, and go to state 12
+    '['  shift, and go to state 13
+
+
+State 35
+
+   33 selectionstmt: IF . '(' expression ')' statement
+   34              | IF . '(' expression ')' statement ELSE statement
+
+    '('  shift, and go to state 62
+
+
+State 36
+
+   35 iterationstmt: WHILE . '(' expression ')' statement
+
+    '('  shift, and go to state 63
+
+
+State 37
+
+   36 returnstmt: RETURN . ';'
+   37           | RETURN . expression ';'
+
+    ID   shift, and go to state 40
+    NUM  shift, and go to state 41
+    ';'  shift, and go to state 64
+    '('  shift, and go to state 43
+
+    expression          go to state 65
+    var                 go to state 66
+    simpleexpression    go to state 57
+    additiveexpression  go to state 58
+    term                go to state 59
+    factor              go to state 60
+    call                go to state 61
+
+
+State 38
+
+   38 readstmt: READ . var ';'
+
+    ID  shift, and go to state 67
+
+    var  go to state 68
+
+
+State 39
+
+   39 writestmt: WRITE . expression ';'
+
+    ID   shift, and go to state 40
+    NUM  shift, and go to state 41
+    '('  shift, and go to state 43
+
+    expression          go to state 69
+    var                 go to state 66
+    simpleexpression    go to state 57
+    additiveexpression  go to state 58
+    term                go to state 59
+    factor              go to state 60
+    call                go to state 61
+
+
+State 40
+
+   42 var: ID .
+   43    | ID . '[' expression ']'
+   64 call: ID . '(' args ')'
+
+    '['  shift, and go to state 70
+    '('  shift, and go to state 71
+
+    $default  reduce using rule 42 (var)
+
+
+State 41
+
+   61 factor: NUM .
+
+    $default  reduce using rule 61 (factor)
+
+
+State 42
+
+   31 expressionstmt: ';' .
+
+    $default  reduce using rule 31 (expressionstmt)
+
+
+State 43
+
+   60 factor: '(' . expression ')'
+
+    ID   shift, and go to state 40
+    NUM  shift, and go to state 41
+    '('  shift, and go to state 43
+
+    expression          go to state 72
+    var                 go to state 66
+    simpleexpression    go to state 57
+    additiveexpression  go to state 58
+    term                go to state 59
+    factor              go to state 60
+    call                go to state 61
+
+
+State 44
+
+   19 localdeclarations: localdeclarations VARDEC .
+
+    $default  reduce using rule 19 (localdeclarations)
+
+
+State 45
+
+   23 statement: compoundstmt .
+
+    $default  reduce using rule 23 (statement)
+
+
+State 46
+
+   17 compoundstmt: '{' localdeclarations statementlist . '}'
+
+    '}'  shift, and go to state 73
+
+
+State 47
+
+   21 statementlist: statement . statementlist
+
+    IF      shift, and go to state 35
+    WHILE   shift, and go to state 36
+    RETURN  shift, and go to state 37
+    READ    shift, and go to state 38
+    WRITE   shift, and go to state 39
+    ID      shift, and go to state 40
+    NUM     shift, and go to state 41
+    ';'     shift, and go to state 42
+    '('     shift, and go to state 43
+    '{'     shift, and go to state 27
+
+    $default  reduce using rule 20 (statementlist)
+
+    compoundstmt        go to state 45
+    statementlist       go to state 74
+    statement           go to state 47
+    expressionstmt      go to state 48
+    assignmentstmt      go to state 49
+    selectionstmt       go to state 50
+    iterationstmt       go to state 51
+    returnstmt          go to state 52
+    readstmt            go to state 53
+    writestmt           go to state 54
+    expression          go to state 55
+    var                 go to state 56
+    simpleexpression    go to state 57
+    additiveexpression  go to state 58
+    term                go to state 59
+    factor              go to state 60
+    call                go to state 61
+
+
+State 48
+
+   22 statement: expressionstmt .
+
+    $default  reduce using rule 22 (statement)
+
+
+State 49
+
+   26 statement: assignmentstmt .
+
+    $default  reduce using rule 26 (statement)
+
+
+State 50
+
+   24 statement: selectionstmt .
+
+    $default  reduce using rule 24 (statement)
+
+
+State 51
+
+   25 statement: iterationstmt .
+
+    $default  reduce using rule 25 (statement)
+
+
+State 52
+
+   27 statement: returnstmt .
+
+    $default  reduce using rule 27 (statement)
+
+
+State 53
+
+   28 statement: readstmt .
+
+    $default  reduce using rule 28 (statement)
+
+
+State 54
+
+   29 statement: writestmt .
+
+    $default  reduce using rule 29 (statement)
+
+
+State 55
+
+   30 expressionstmt: expression . ';'
+
+    ';'  shift, and go to state 75
+
+
+State 56
+
+   32 assignmentstmt: var . '=' expressionstmt ';'
+   41 expression: var . '=' simpleexpression
+   62 factor: var .
+
+    '='  shift, and go to state 76
+
+    $default  reduce using rule 62 (factor)
+
+
+State 57
+
+   40 expression: simpleexpression .
+
+    $default  reduce using rule 40 (expression)
+
+
+State 58
+
+   44 simpleexpression: additiveexpression .
+   45                 | additiveexpression . relop simpleexpression
+
+    LE   shift, and go to state 77
+    GE   shift, and go to state 78
+    EQ   shift, and go to state 79
+    NE   shift, and go to state 80
+    '<'  shift, and go to state 81
+    '>'  shift, and go to state 82
+
+    $default  reduce using rule 44 (simpleexpression)
+
+    relop  go to state 83
+
+
+State 59
+
+   52 additiveexpression: term .
+   53                   | term . addop additiveexpression
+
+    '+'  shift, and go to state 84
+    '-'  shift, and go to state 85
+
+    $default  reduce using rule 52 (additiveexpression)
+
+    addop  go to state 86
+
+
+State 60
+
+   56 term: factor .
+   57     | factor . multop term
+
+    '*'  shift, and go to state 87
+    '/'  shift, and go to state 88
+
+    $default  reduce using rule 56 (term)
+
+    multop  go to state 89
+
+
+State 61
+
+   63 factor: call .
+
+    $default  reduce using rule 63 (factor)
+
+
+State 62
+
+   33 selectionstmt: IF '(' . expression ')' statement
+   34              | IF '(' . expression ')' statement ELSE statement
+
+    ID   shift, and go to state 40
+    NUM  shift, and go to state 41
+    '('  shift, and go to state 43
+
+    expression          go to state 90
+    var                 go to state 66
+    simpleexpression    go to state 57
+    additiveexpression  go to state 58
+    term                go to state 59
+    factor              go to state 60
+    call                go to state 61
+
+
+State 63
+
+   35 iterationstmt: WHILE '(' . expression ')' statement
+
+    ID   shift, and go to state 40
+    NUM  shift, and go to state 41
+    '('  shift, and go to state 43
+
+    expression          go to state 91
+    var                 go to state 66
+    simpleexpression    go to state 57
+    additiveexpression  go to state 58
+    term                go to state 59
+    factor              go to state 60
+    call                go to state 61
+
+
+State 64
+
+   36 returnstmt: RETURN ';' .
+
+    $default  reduce using rule 36 (returnstmt)
+
+
+State 65
+
+   37 returnstmt: RETURN expression . ';'
+
+    ';'  shift, and go to state 92
+
+
+State 66
+
+   41 expression: var . '=' simpleexpression
+   62 factor: var .
+
+    '='  shift, and go to state 93
+
+    $default  reduce using rule 62 (factor)
+
+
+State 67
+
+   42 var: ID .
+   43    | ID . '[' expression ']'
+
+    '['  shift, and go to state 70
+
+    $default  reduce using rule 42 (var)
+
+
+State 68
+
+   38 readstmt: READ var . ';'
+
+    ';'  shift, and go to state 94
+
+
+State 69
+
+   39 writestmt: WRITE expression . ';'
+
+    ';'  shift, and go to state 95
+
+
+State 70
+
+   43 var: ID '[' . expression ']'
+
+    ID   shift, and go to state 40
+    NUM  shift, and go to state 41
+    '('  shift, and go to state 43
+
+    expression          go to state 96
+    var                 go to state 66
+    simpleexpression    go to state 57
+    additiveexpression  go to state 58
+    term                go to state 59
+    factor              go to state 60
+    call                go to state 61
+
+
+State 71
+
+   64 call: ID '(' . args ')'
+
+    ID   shift, and go to state 40
+    NUM  shift, and go to state 41
+    '('  shift, and go to state 43
+
+    $default  reduce using rule 66 (args)
+
+    expression          go to state 97
+    var                 go to state 66
+    simpleexpression    go to state 57
+    additiveexpression  go to state 58
+    term                go to state 59
+    factor              go to state 60
+    call                go to state 61
+    args                go to state 98
+    arglist             go to state 99
+
+
+State 72
+
+   60 factor: '(' expression . ')'
+
+    ')'  shift, and go to state 100
+
+
+State 73
+
+   17 compoundstmt: '{' localdeclarations statementlist '}' .
+
+    $default  reduce using rule 17 (compoundstmt)
+
+
+State 74
+
+   21 statementlist: statement statementlist .
+
+    $default  reduce using rule 21 (statementlist)
+
+
+State 75
+
+   30 expressionstmt: expression ';' .
+
+    $default  reduce using rule 30 (expressionstmt)
+
+
+State 76
+
+   32 assignmentstmt: var '=' . expressionstmt ';'
+   41 expression: var '=' . simpleexpression
+
+    ID   shift, and go to state 40
+    NUM  shift, and go to state 41
+    ';'  shift, and go to state 42
+    '('  shift, and go to state 43
+
+    expressionstmt      go to state 101
+    expression          go to state 55
+    var                 go to state 66
+    simpleexpression    go to state 102
+    additiveexpression  go to state 58
+    term                go to state 59
+    factor              go to state 60
+    call                go to state 61
+
+
+State 77
+
+   46 relop: LE .
+
+    $default  reduce using rule 46 (relop)
+
+
+State 78
+
+   49 relop: GE .
+
+    $default  reduce using rule 49 (relop)
+
+
+State 79
+
+   50 relop: EQ .
+
+    $default  reduce using rule 50 (relop)
+
+
+State 80
+
+   51 relop: NE .
+
+    $default  reduce using rule 51 (relop)
+
+
+State 81
+
+   47 relop: '<' .
+
+    $default  reduce using rule 47 (relop)
+
+
+State 82
+
+   48 relop: '>' .
+
+    $default  reduce using rule 48 (relop)
+
+
+State 83
+
+   45 simpleexpression: additiveexpression relop . simpleexpression
+
+    ID   shift, and go to state 40
+    NUM  shift, and go to state 41
+    '('  shift, and go to state 43
+
+    var                 go to state 103
+    simpleexpression    go to state 104
+    additiveexpression  go to state 58
+    term                go to state 59
+    factor              go to state 60
+    call                go to state 61
+
+
+State 84
+
+   54 addop: '+' .
+
+    $default  reduce using rule 54 (addop)
+
+
+State 85
+
+   55 addop: '-' .
+
+    $default  reduce using rule 55 (addop)
+
+
+State 86
+
+   53 additiveexpression: term addop . additiveexpression
+
+    ID   shift, and go to state 40
+    NUM  shift, and go to state 41
+    '('  shift, and go to state 43
+
+    var                 go to state 103
+    additiveexpression  go to state 105
+    term                go to state 59
+    factor              go to state 60
+    call                go to state 61
+
+
+State 87
+
+   58 multop: '*' .
+
+    $default  reduce using rule 58 (multop)
+
+
+State 88
+
+   59 multop: '/' .
+
+    $default  reduce using rule 59 (multop)
+
+
+State 89
+
+   57 term: factor multop . term
+
+    ID   shift, and go to state 40
+    NUM  shift, and go to state 41
+    '('  shift, and go to state 43
+
+    var     go to state 103
+    term    go to state 106
+    factor  go to state 60
+    call    go to state 61
+
+
+State 90
+
+   33 selectionstmt: IF '(' expression . ')' statement
+   34              | IF '(' expression . ')' statement ELSE statement
+
+    ')'  shift, and go to state 107
+
+
+State 91
+
+   35 iterationstmt: WHILE '(' expression . ')' statement
+
+    ')'  shift, and go to state 108
+
+
+State 92
+
+   37 returnstmt: RETURN expression ';' .
+
+    $default  reduce using rule 37 (returnstmt)
+
+
+State 93
+
+   41 expression: var '=' . simpleexpression
+
+    ID   shift, and go to state 40
+    NUM  shift, and go to state 41
+    '('  shift, and go to state 43
+
+    var                 go to state 103
+    simpleexpression    go to state 109
+    additiveexpression  go to state 58
+    term                go to state 59
+    factor              go to state 60
+    call                go to state 61
+
+
+State 94
+
+   38 readstmt: READ var ';' .
+
+    $default  reduce using rule 38 (readstmt)
+
+
+State 95
+
+   39 writestmt: WRITE expression ';' .
+
+    $default  reduce using rule 39 (writestmt)
+
+
+State 96
+
+   43 var: ID '[' expression . ']'
+
+    ']'  shift, and go to state 110
+
+
+State 97
+
+   67 arglist: expression .
+   68        | expression . ',' arglist
+
+    ','  shift, and go to state 111
+
+    $default  reduce using rule 67 (arglist)
+
+
+State 98
+
+   64 call: ID '(' args . ')'
+
+    ')'  shift, and go to state 112
+
+
+State 99
+
+   65 args: arglist .
+
+    $default  reduce using rule 65 (args)
+
+
+State 100
+
+   60 factor: '(' expression ')' .
+
+    $default  reduce using rule 60 (factor)
+
+
+State 101
+
+   32 assignmentstmt: var '=' expressionstmt . ';'
+
+    ';'  shift, and go to state 113
+
+
+State 102
+
+   40 expression: simpleexpression .
+   41           | var '=' simpleexpression .
+
+    ';'       reduce using rule 40 (expression)
+    ';'       [reduce using rule 41 (expression)]
+    $default  reduce using rule 40 (expression)
+
+
+State 103
+
+   62 factor: var .
+
+    $default  reduce using rule 62 (factor)
+
+
+State 104
+
+   45 simpleexpression: additiveexpression relop simpleexpression .
+
+    $default  reduce using rule 45 (simpleexpression)
+
+
+State 105
+
+   53 additiveexpression: term addop additiveexpression .
+
+    $default  reduce using rule 53 (additiveexpression)
+
+
+State 106
+
+   57 term: factor multop term .
+
+    $default  reduce using rule 57 (term)
+
+
+State 107
+
+   33 selectionstmt: IF '(' expression ')' . statement
+   34              | IF '(' expression ')' . statement ELSE statement
+
+    IF      shift, and go to state 35
+    WHILE   shift, and go to state 36
+    RETURN  shift, and go to state 37
+    READ    shift, and go to state 38
+    WRITE   shift, and go to state 39
+    ID      shift, and go to state 40
+    NUM     shift, and go to state 41
+    ';'     shift, and go to state 42
+    '('     shift, and go to state 43
+    '{'     shift, and go to state 27
+
+    compoundstmt        go to state 45
+    statement           go to state 114
+    expressionstmt      go to state 48
+    assignmentstmt      go to state 49
+    selectionstmt       go to state 50
+    iterationstmt       go to state 51
+    returnstmt          go to state 52
+    readstmt            go to state 53
+    writestmt           go to state 54
+    expression          go to state 55
+    var                 go to state 56
+    simpleexpression    go to state 57
+    additiveexpression  go to state 58
+    term                go to state 59
+    factor              go to state 60
+    call                go to state 61
+
+
+State 108
+
+   35 iterationstmt: WHILE '(' expression ')' . statement
+
+    IF      shift, and go to state 35
+    WHILE   shift, and go to state 36
+    RETURN  shift, and go to state 37
+    READ    shift, and go to state 38
+    WRITE   shift, and go to state 39
+    ID      shift, and go to state 40
+    NUM     shift, and go to state 41
+    ';'     shift, and go to state 42
+    '('     shift, and go to state 43
+    '{'     shift, and go to state 27
+
+    compoundstmt        go to state 45
+    statement           go to state 115
+    expressionstmt      go to state 48
+    assignmentstmt      go to state 49
+    selectionstmt       go to state 50
+    iterationstmt       go to state 51
+    returnstmt          go to state 52
+    readstmt            go to state 53
+    writestmt           go to state 54
+    expression          go to state 55
+    var                 go to state 56
+    simpleexpression    go to state 57
+    additiveexpression  go to state 58
+    term                go to state 59
+    factor              go to state 60
+    call                go to state 61
+
+
+State 109
+
+   41 expression: var '=' simpleexpression .
+
+    $default  reduce using rule 41 (expression)
+
+
+State 110
+
+   43 var: ID '[' expression ']' .
+
+    $default  reduce using rule 43 (var)
+
+
+State 111
+
+   68 arglist: expression ',' . arglist
+
+    ID   shift, and go to state 40
+    NUM  shift, and go to state 41
+    '('  shift, and go to state 43
+
+    expression          go to state 97
+    var                 go to state 66
+    simpleexpression    go to state 57
+    additiveexpression  go to state 58
+    term                go to state 59
+    factor              go to state 60
+    call                go to state 61
+    arglist             go to state 116
+
+
+State 112
+
+   64 call: ID '(' args ')' .
+
+    $default  reduce using rule 64 (call)
+
+
+State 113
+
+   32 assignmentstmt: var '=' expressionstmt ';' .
+
+    $default  reduce using rule 32 (assignmentstmt)
+
+
+State 114
+
+   33 selectionstmt: IF '(' expression ')' statement .
+   34              | IF '(' expression ')' statement . ELSE statement
+
+    ELSE  shift, and go to state 117
+
+    ELSE      [reduce using rule 33 (selectionstmt)]
+    $default  reduce using rule 33 (selectionstmt)
+
+
+State 115
+
+   35 iterationstmt: WHILE '(' expression ')' statement .
+
+    $default  reduce using rule 35 (iterationstmt)
+
+
+State 116
+
+   68 arglist: expression ',' arglist .
+
+    $default  reduce using rule 68 (arglist)
+
+
+State 117
+
+   34 selectionstmt: IF '(' expression ')' statement ELSE . statement
+
+    IF      shift, and go to state 35
+    WHILE   shift, and go to state 36
+    RETURN  shift, and go to state 37
+    READ    shift, and go to state 38
+    WRITE   shift, and go to state 39
+    ID      shift, and go to state 40
+    NUM     shift, and go to state 41
+    ';'     shift, and go to state 42
+    '('     shift, and go to state 43
+    '{'     shift, and go to state 27
+
+    compoundstmt        go to state 45
+    statement           go to state 118
+    expressionstmt      go to state 48
+    assignmentstmt      go to state 49
+    selectionstmt       go to state 50
+    iterationstmt       go to state 51
+    returnstmt          go to state 52
+    readstmt            go to state 53
+    writestmt           go to state 54
+    expression          go to state 55
+    var                 go to state 56
+    simpleexpression    go to state 57
+    additiveexpression  go to state 58
+    term                go to state 59
+    factor              go to state 60
+    call                go to state 61
+
+
+State 118
+
+   34 selectionstmt: IF '(' expression ')' statement ELSE statement .
+
+    $default  reduce using rule 34 (selectionstmt)

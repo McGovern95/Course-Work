@@ -15,7 +15,7 @@ int base, debugsw;
 void yyerror (s)  /* Called by yyparse on error */
      char *s;
 {
-  printf ("%s %d\n", s, lineno);
+  printf ("%s on Line number: %d\n", s, lineno);
 }
 
 
@@ -25,7 +25,21 @@ void yyerror (s)  /* Called by yyparse on error */
 
 %start P
 
-%token ID NUM INT VOID IF ELSE WHILE RETURN READ WRITE LE GE EQ NE
+%union{
+	int value;
+	char * string;
+}
+
+
+%token INT VOID IF ELSE WHILE RETURN READ WRITE LE LT GT GE EQ NE
+%token <string> ID
+%token <value> NUM
+
+%left '|'
+%left '&'
+%left '+' '-'
+%left '*' '/' '%'
+%left UMINUS 
 
 %%	/* end specs, begin rules */
 
@@ -54,7 +68,7 @@ params	: VOID
 		;
 
 paramlist	: param
-			| paramlist ',' param
+			| param ',' paramlist
 			;
 
 param   : typespec ID
@@ -64,9 +78,10 @@ param   : typespec ID
 compoundstmt : '{' localdeclarations statementlist '}'
 			 ;
 
-localdeclarations : VARDEC localdeclarations
-				  | /*empty*/
+localdeclarations : /* empty */ 
+				  | VARDEC localdeclarations
 				  ;
+
 statementlist : /*empty */
 			  | statement statementlist
 			  ;
@@ -81,6 +96,70 @@ statement :  expressionstmt
 		  |  writestmt
 		  ;
 
+expressionstmt : ';'
+			   | expression ';'
+			   ;
+
+assignmentstmt  : var '=' expression ';'
+			   ;
+
+selectionstmt : IF '(' expression ')' statement
+			  | IF '(' expression ')' statement ELSE statement
+			  ;
+
+iterationstmt : WHILE '(' expression ')' statement
+			 ;
+
+returnstmt : RETURN ';'
+		   | RETURN expression ';'
+		   ;
+
+readstmt : READ var ';'
+		 ;
+
+writestmt : WRITE expression ';'
+		  ;
+
+expression : simpleexpression
+		   ;
+
+var : ID 
+    | ID '[' expression ']' 
+    ;
+
+simpleexpression : additiveexpression 
+				 | additiveexpression relop simpleexpression
+				 ;
+
+relop : LE | LT | GT | GE | EQ | NE
+      ;
+
+additiveexpression : term
+				   | term addop additiveexpression
+				   ;
+
+addop : '+' | '-'
+	  ;
+
+term : factor
+	 | factor multop term
+	 ;
+
+multop : '*' | '/' 
+       ;
+
+factor : '(' expression ')' | NUM | var | call
+       ;
+
+call : ID '(' args ')'
+	 ;
+
+args : /*empty*/ | arglist
+	 ;
+
+arglist : expression
+		| expression ',' arglist
+		;
 
 
 %% /* end rules */
@@ -89,14 +168,3 @@ main()
 { yyparse();
 }
 
-
-
-
-
-
-
-/*ld -> /*empty*/
-//  | VAR DEC LD
-// ; */
-
-//additiveexpresoin relop simpleexpression

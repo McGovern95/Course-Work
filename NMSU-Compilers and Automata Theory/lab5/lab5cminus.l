@@ -11,7 +11,7 @@ int lineno=1;
 
 %}
 
-letter 		[A-Za-z]
+letter 		[a-zA-Z][a-zA-Z]*
 num 		[0-9][0-9]*
 id 			{letter}({letter}|{num})*
 
@@ -35,35 +35,39 @@ read		{if (mydebug) fprintf(stderr,"read found\n");
 write		{if (mydebug) fprintf(stderr,"write found\n"); 
             							    return(WRITE);}
 
-'<='			{if (mydebug) fprintf(stderr,"LE found\n"); 
+[<][\=]			{if (mydebug) fprintf(stderr,"LE found\n"); 
             							    return(LE);}
 
-'>='			{if (mydebug) fprintf(stderr,"GE found\n"); 
+[>][\=]			{if (mydebug) fprintf(stderr,"GE found\n"); 
             							    return(GE);}
 
-'=='			{if (mydebug) fprintf(stderr,"EQ found\n"); 
+[\=][\=]			{if (mydebug) fprintf(stderr,"EQ found\n"); 
             							    return(EQ);}
 
-'!='			{if (mydebug) fprintf(stderr,"LE found\n"); 
+[\!][\=]			{if (mydebug) fprintf(stderr,"LE found\n"); 
             							    return(NE);}
 
+[<]			{if (mydebug) fprintf(stderr,"LT found\n"); 
+            							    return(LT);}
 
+[>]			{if (mydebug) fprintf(stderr,"GT found\n"); 
+            							    return(GT);}
 
+                                            
 {id}		{if (mydebug) fprintf(stderr,"id found\n"); 
               yylval.string=strdup(yytext);return(ID);}
 
 {num}		{if (mydebug) fprintf(stderr,"num found\n"); 
-                       yylval=atoi((const char *)yytext); return(NUM);}	
+              yylval.value=atoi((const char *)yytext); return(NUM);}	
 
 
 [ \t]		{if (mydebug) fprintf(stderr,"Whitespace found\n");}
 [;]		        { if (mydebug) fprintf(stderr, "return a semicolon %c\n", *yytext);
 					   return (*yytext);}
-[<>=()\-+*/%&|;{}[]] 	{ if (mydebug) fprintf(stderr,"return a token %c\n",*yytext); //added () to set
+[<>=()\-+*/%&\[\]|;{},] 	{ if (mydebug) fprintf(stderr,"return a token %c\n",*yytext); //added () to set
                        return (*yytext);}
-\n 		{ if (mydebug) fprintf(stderr,"cariage return %c\n",*yytext);
-					   lineno++; 
-                       return (*yytext);}
+\n 			{lineno++;} 
+                       
 
 %%
 /*End Rules*/
