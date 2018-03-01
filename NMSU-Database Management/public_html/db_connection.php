@@ -1,8 +1,8 @@
 
 <?php
-$servername = "dbclass.cs.nmsu.edu";
-$username = "cmcgover";
-$password = "q4tSdx69";
+$servername = "localhost";
+$username = "root";
+$password = "password";
 $dbname = "test";
 
 // Create connection
