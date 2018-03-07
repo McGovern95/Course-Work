@@ -12,9 +12,42 @@
 
 #include<stdio.h>
 #include<malloc.h>
-#include <ctype.h>
-#include "lab6ast.h"
 static int mydebug;
+
+/* define the enumerated types for the AST.  THis is used to tell us what 
+sort of production rule we came across */
+
+/* this is a partial list of NODE types for the ASTNode */
+
+enum ASTtype {
+   PROGRAM,
+   VARDEC,
+   INTTYPE,
+   IDENT,
+   .... stuff is missing
+};
+
+
+enum OPERATORS {
+   PLUS,
+   MINUS,
+   TIMES,
+..... stuff is missing
+};
+
+/* define a type AST node which will hold pointers to AST structs that will
+   allow us to represent the parsed code 
+*/
+typedef struct ASTnodetype
+{
+     enum ASTtype type;
+     enum OPERATORS operator;
+     char * name;
+     int value;
+     struct ASTnodetype *left,*right; /* I would call these Next left is usually the connector for statements */
+     struct ASTnodetype *s1,*s2 ; /* used for holding IF and WHILE components -- not very descriptive */
+} ASTnode;
+
 
 /* uses malloc to create an ASTnode and passes back the heap address of the newly created node */
 ASTnode *ASTCreateNode(enum ASTtype mytype)
@@ -23,8 +56,8 @@ ASTnode *ASTCreateNode(enum ASTtype mytype)
     if (mydebug) fprintf(stderr,"Creating AST Node \n");
     p=(ASTnode *)malloc(sizeof(ASTnode));
     p->type=mytype;
-    p->next=NULL;
-    p->s0=NULL;
+    p->left=NULL;
+    p->right=NULL;
     p->s1=NULL;
     p->s2=NULL;
     p->value=0;
@@ -34,11 +67,10 @@ ASTnode *ASTCreateNode(enum ASTtype mytype)
 /* attach q to the left most part of p */
 void ASTattachleft(ASTnode *p,ASTnode *q)
 {
-//... missing
-        
+... missing
 }
 
-
+ASTnode *program;
 
 /*  Print out the abstract syntax tree */
 void ASTprint(int level,ASTnode *p)
@@ -55,9 +87,7 @@ void ASTprint(int level,ASTnode *p)
                         printf("[%d]",p->value);
                      printf("\n");
                      break;
-
-        //where all the case statements go: 
-
+....missing
         default: printf("unknown type in ASTprint\n");
 
 

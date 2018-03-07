@@ -14,9 +14,23 @@ sort of production rule we came across */
 enum ASTtype {
    PROGRAM,
    VARDEC,
-   FUNCDEC,
+   FUNCTDEC,
+   PARAM,
    INTTYPE,
-   IDENT,
+   IDENTIFER,
+   BLOCK,
+   EXPRSTMT,
+   ASSIGNSTMT,
+   IFSTMT,
+   READSTMT,
+   RETURNSTMT,
+   WRITESTMT,
+   EXPR,
+   CALL,
+   NUMBER,
+   ARGLIST,
+
+
 
 };
 
@@ -24,6 +38,16 @@ enum OPERATORS {
    PLUS,
    MINUS,
    TIMES,
+   DIV,
+   MOD,
+   INTDEC,
+   VOIDDEC,
+   LESSTHANEQUAL,
+   LESSTHAN,
+   GREATERTHAN,
+   GREATERTHANEQUAL,
+   EQUAL,
+   NOTEQUAL,
 };
 
 /* define a type AST node which will hold pointers to AST structs that will
@@ -35,8 +59,8 @@ typedef struct ASTnodetype
      enum OPERATORS operator;
      char * name;
      int value;
-     struct ASTnodetype *left,*right; /* I would call these Next left is usually the connector for statements */
-     struct ASTnodetype *s1,*s2 ; /* used for holding IF and WHILE components -- not very descriptive */
+     struct ASTnodetype *next; /* I would call these Next left is usually the connector for statements */
+     struct ASTnodetype *s0,*s1,*s2 ; /* used for holding IF and WHILE components -- not very descriptive */
 } ASTnode;
 
 ASTnode *ASTCreateNode(enum ASTtype);
