@@ -8,7 +8,7 @@ morse_table: # binary representation of Morse code: 0: dot; 1: dash
 morse_width: # the number of binary digits in each character
     .byte 2, 4, 4, 3, 1, 4
 ascii_table: # the English symbols encoded by the above Morse code 
-    .byte 'A', 'B', 'C', 'D', 'E', 'F'
+    .byte 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'
 
 table_length:
     .byte 6
@@ -38,6 +38,22 @@ decode_morse:
     LDI R26, lo8(morse_width) ; initialize low byte of X
 
     # ENTER YOUR CODE BELOW
+    lds r18, val
+    lds r19, width
+    
+
+
+L1: 
+    ld r21, X+
+    ld r22, Y+
+    ld r23, Z+
+
+morse: 
+     cp r23, r18
+     BRNE L1
+     CP r21, r19
+     BRNE L1
+     sts ascii, r22
 
     
     

@@ -787,114 +787,114 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 YY_RULE_SETUP
 #line 23 "lab6ast.l"
-{if (mydebug) fprintf(stderr,"int found\n"); 
+{//if (mydebug) fprintf(stderr,"int found\n"); 
             							    return(INT);}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
 #line 25 "lab6ast.l"
-{if (mydebug) fprintf(stderr,"void found\n"); 
+{//if (mydebug) fprintf(stderr,"void found\n"); 
             							    return(VOID);}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
 #line 27 "lab6ast.l"
-{if (mydebug) fprintf(stderr,"if found\n"); 
+{//if (mydebug) fprintf(stderr,"if found\n"); 
             							    return(IF);}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
 #line 29 "lab6ast.l"
-{if (mydebug) fprintf(stderr,"else found\n"); 
+{//if (mydebug) fprintf(stderr,"else found\n"); 
             							    return(ELSE);}	
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 31 "lab6ast.l"
-{if (mydebug) fprintf(stderr,"while found\n"); 
+{//if (mydebug) fprintf(stderr,"while found\n"); 
             							    return(WHILE);}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
 #line 33 "lab6ast.l"
-{if (mydebug) fprintf(stderr,"return found\n"); 
+{//if (mydebug) fprintf(stderr,"return found\n"); 
             							    return(RETURN);}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 35 "lab6ast.l"
-{if (mydebug) fprintf(stderr,"read found\n"); 
+{//if (mydebug) fprintf(stderr,"read found\n"); 
             							    return(READ);}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 37 "lab6ast.l"
-{if (mydebug) fprintf(stderr,"write found\n"); 
+{//if (mydebug) fprintf(stderr,"write found\n"); 
             							    return(WRITE);}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 40 "lab6ast.l"
-{if (mydebug) fprintf(stderr,"LE found\n"); 
+{//if (mydebug) fprintf(stderr,"LE found\n"); 
             							    return(LE);}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 43 "lab6ast.l"
-{if (mydebug) fprintf(stderr,"GE found\n"); 
+{//if (mydebug) fprintf(stderr,"GE found\n"); 
             							    return(GE);}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
 #line 46 "lab6ast.l"
-{if (mydebug) fprintf(stderr,"EQ found\n"); 
+{//if (mydebug) fprintf(stderr,"EQ found\n"); 
             							    return(EQ);}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
 #line 49 "lab6ast.l"
-{if (mydebug) fprintf(stderr,"LE found\n"); 
+{//if (mydebug) fprintf(stderr,"LE found\n"); 
             							    return(NE);}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
 #line 52 "lab6ast.l"
-{if (mydebug) fprintf(stderr,"LT found\n"); 
+{//if (mydebug) fprintf(stderr,"LT found\n"); 
             							    return(LT);}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 55 "lab6ast.l"
-{if (mydebug) fprintf(stderr,"GT found\n"); 
+{//if (mydebug) fprintf(stderr,"GT found\n"); 
             							    return(GT);}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 59 "lab6ast.l"
-{if (mydebug) fprintf(stderr,"id found\n"); 
+{//if (mydebug) fprintf(stderr,"id found\n"); 
               yylval.string=strdup(yytext);return(ID);}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
 #line 62 "lab6ast.l"
-{if (mydebug) fprintf(stderr,"num found\n"); 
+{//if (mydebug) fprintf(stderr,"num found\n"); 
               yylval.value=atoi((const char *)yytext); return(NUM);}	
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 66 "lab6ast.l"
-{if (mydebug) fprintf(stderr,"Whitespace found\n");}
+{}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 67 "lab6ast.l"
-{ if (mydebug) fprintf(stderr, "return a semicolon %c\n", *yytext);
+{// if (mydebug) fprintf(stderr, "return a semicolon %c\n", *yytext);
 					   return (*yytext);}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 69 "lab6ast.l"
-{ if (mydebug) fprintf(stderr,"return a token %c\n",*yytext); //added () to set
+{ //if (mydebug) fprintf(stderr,"return a token %c\n",*yytext); //added () to set
                        return (*yytext);}
 	YY_BREAK
 case 20:

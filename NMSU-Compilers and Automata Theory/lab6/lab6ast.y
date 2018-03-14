@@ -15,6 +15,7 @@
 
 static int mydebug;
 static int lineno; 
+static int level;
 
 void yyerror (s)  /* Called by yyparse on error */
      char *s;
@@ -58,7 +59,7 @@ P 		: 	DL /*program -Decleration-list*/
 		;
 DL 		: 	DEC  {$$ = $1;}   
 		|   DEC DL   {$$ = $1; $$ = $1;
-					  $1->next=$2;
+					        $1->next=$2;
 					 }
 					
 		;
@@ -66,14 +67,13 @@ DL 		: 	DEC  {$$ = $1;}
 DEC     : VARDEC{$$=$1;} | FUNDEC{$$=$1;}
 		;
 
-VARDEC  : typespec ID ';'{
-	
-			$$=ASTCreateNode(VARDEC);
-			$$->name=$2;
-}
+VARDEC  : typespec ID ';'{$$=ASTCreateNode(VARDEC);
+                          $$->operator=$1;
+						              $$->name=$2;}
 		| typespec ID '[' NUM ']' ';' {$$=ASTCreateNode(VARDEC); 
-                                             $$->name=$2;
-                                             $$->value=$4;}
+                                   $$->name=$2;
+                                   $$->operator=$1;
+                                   $$->value=$4;}
 		;
 
 typespec	: INT   {$$ = INTDEC;}
@@ -81,9 +81,10 @@ typespec	: INT   {$$ = INTDEC;}
 			;	
 
 FUNDEC  : typespec ID '(' params ')' compoundstmt {$$=ASTCreateNode(FUNCTDEC); 
-                                                         $$->name=$2;
-                                                         $$->s0 = $6;
-                                                         $$->s1 = $4;}
+														                       $$->operator =$1;
+                                                   $$->name=$2;
+                                                   $$->s0 = $4;
+                                                   $$->s1 = $6;}
 		;
 
 params	: VOID       {$$ = NULL;}    
@@ -91,12 +92,18 @@ params	: VOID       {$$ = NULL;}
 		;
 
 paramlist	: param  {$$ = $1;}
-			| param ',' paramlist {ASTattachleft($1, $3);}
+			| param ',' paramlist {
+			                       $1->next=$3;
+			                       $$=$1;
+			                       //ASTattachleft($1, $3);
+			}
 			;
 
 param   : typespec ID  {$$=ASTCreateNode(PARAM);
+						            $$->operator=$1;
                         $$->name=$2;}
 		| typespec ID '[' NUM ']' {$$=ASTCreateNode(PARAM);
+							                 $$->operator=$1;
                                $$->name=$2;
                                $$->value=$4;}
 		;
@@ -107,19 +114,20 @@ compoundstmt : '{' localdeclarations statementlist '}'  {$$=ASTCreateNode(BLOCK)
                                                              else{  
                                                                 $$->s0=$2;
                                                                 $$->s1=$3;
-                                                                ASTattachleft($2,$3);
+                                                                //ASTattachleft($2,$3);
                                                              }}
 			 ;
 
 localdeclarations : /* empty */ {$$=NULL;}
 				  | VARDEC localdeclarations {$1->next=$2;
-                                              $$=$1;}
+                                      $$=$1;}
 				  ;
 
 statementlist : /*empty */ {$$=NULL;} 
-			  | statement statementlist {if($1 !=NULL){$1->next=$2;
-                                         $$=$1;}
-                                         else $$=$2;}
+			  | statement statementlist {if($1 !=NULL)
+                                      {$1->next=$2;
+                                       $$=$1;}
+                                   else $$=$2;}
 			  ;
 
 statement :  expressionstmt {$$ = $1;}
@@ -127,41 +135,41 @@ statement :  expressionstmt {$$ = $1;}
 		  |  selectionstmt	{$$ = $1;}
 		  |  iterationstmt	{$$ = $1;}
 		  |  assignmentstmt	{$$ = $1;}
-		  |  returnstmt		{$$ = $1;}
-		  |  readstmt		{$$ = $1;}
-		  |  writestmt		{$$ = $1;}
+		  |  returnstmt		  {$$ = $1;}
+		  |  readstmt		    {$$ = $1;}
+		  |  writestmt		  {$$ = $1;}
 		  ;
 
 expressionstmt : ';' { $$=NULL; }
 			   | expression ';' { $$=ASTCreateNode(EXPRSTMT);
-                                  $$->s0=$1;}
+                            $$->s0=$1;}
 			   ;
 
 assignmentstmt  : var '=' expression ';' {$$=ASTCreateNode(ASSIGNSTMT);
-                                          $$->next=$1;
-                                          $$->s0=$3;}
+                                          $$->s0=$1;
+                                          $$->s1=$3;}
 			   ;
 
 selectionstmt : IF '(' expression ')' statement { $$=ASTCreateNode(IFSTMT);
-                                                  $$->next=$3;
-                                                  $$->s0=$5;
-                                                  $$->s1=NULL;}
+                                                  $$->s0=$3;
+                                                  $$->s1=$5;
+                                                  $$->s2=NULL;}
 
 			  | IF '(' expression ')' statement ELSE statement {$$=ASTCreateNode(IFSTMT);
-                                                  $$->next=$3;
-                                                  $$->s0=$5;
-                                                  $$->s1=$7;}
+                                                  $$->s0=$3;
+                                                  $$->s1=$5;
+                                                  $$->s2=$7;}
 			  ;
 
 iterationstmt : WHILE '(' expression ')' statement {$$=ASTCreateNode(WHILE);
-                                                $$->next=$3;
-                                                $$->s0=$5;}
+                                                $$->s0=$3;
+                                                $$->s1=$5;}
 			 ;
 
 returnstmt : RETURN ';' {$$=ASTCreateNode(RETURNSTMT);
                          $$->next=NULL;}
 		   | RETURN expression ';' {$$=ASTCreateNode(RETURNSTMT);
-                                    $$->next=$2;}
+                                    $$->s0=$2;}
 		   ;
 
 readstmt : READ var ';' {$$=ASTCreateNode(READSTMT);
@@ -169,16 +177,17 @@ readstmt : READ var ';' {$$=ASTCreateNode(READSTMT);
 		 ;
 
 writestmt : WRITE expression ';' {$$=ASTCreateNode(WRITESTMT);
-                                  $$->next=$2;}
+                                  $$->s0=$2;}
 		  ;
 
 expression : simpleexpression {$$=$1;}
 		   ;
 
-var : ID   {$$=ASTCreateNode(IDENTIFER);}
-    | ID '[' expression ']' { $$=ASTCreateNode(IDENTIFER);
-	                          $$->name=$1;
-		                      $$->next=$3;}
+var : ID   {$$=ASTCreateNode(IDENTIFER);
+			$$->name=$1;}
+    | ID '[' expression ']' {$$=ASTCreateNode(IDENTIFER);
+	                           $$->name=$1;
+		                         $$->s0=$3;}
     ;
 
 simpleexpression : additiveexpression {$$=$1;}
@@ -243,7 +252,12 @@ arglist : expression {$$=ASTCreateNode(ARGLIST);
 
 %% /* end rules */
 
-main()
-{ yyparse();
+main(int argv,char *arg[])
+{  
+
+   yyparse();
+
+fprintf(stderr, "The input has been syntatically checked\n");
+ASTprint(0,program);
 }
 

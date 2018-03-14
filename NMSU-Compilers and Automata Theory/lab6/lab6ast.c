@@ -34,7 +34,10 @@ ASTnode *ASTCreateNode(enum ASTtype mytype)
 /* attach q to the left most part of p */
 void ASTattachleft(ASTnode *p,ASTnode *q)
 {
-//... missing
+        while(p->next ==NULL){
+            p = p->next;
+            p->next = q;
+        }
         
 }
 
@@ -47,15 +50,92 @@ void ASTprint(int level,ASTnode *p)
    if (p == NULL ) return;
    else
      { 
-     for (i=0;i<level;i++) printf(" "); /* print tabbing blanks */
+     for (i=0;i<level;i++) printf("\t"); /* print tabbing blanks */
       
        switch (p->type) {
-        case VARDEC :  printf("Variable declaration with name %s",p->name);
+
+        case VARDEC :  printf("Variable ");
+                     if(p->operator == INTDEC)
+                        printf("INT");
+                     if(p->operator == VOIDDEC)
+                           printf("VOID");
+                        printf(" %s",p->name);
                      if (p->value > 0)
                         printf("[%d]",p->value);
                      printf("\n");
                      break;
 
+        case FUNCTDEC : 
+                     if(p->operator == INTDEC)
+                        printf("INT ");
+                     if(p->operator == VOIDDEC)
+                           printf("VOID ");
+
+                     printf("FUNCTION %s \n",p->name);
+
+                     if (p->s1 == NULL){
+                        printf(" (VOID) ");
+                     }
+                     else{
+                        printf("{ \n");
+                        ASTprint(level+2,p->s1);
+                        printf("} ");
+                     }
+                     printf("\n");
+                     ASTprint(level+2,p->s0);
+                     break;
+
+        case PARAM : printf("PARAMETER ");
+
+                     if(p->operator == INTDEC)
+                        printf("INT ");
+                     if(p->operator == VOIDDEC)
+                        printf("VOID ");
+                    
+                    printf("%s \n",p->name);
+                    ASTprint(level+1,p->s0);
+                    break;
+
+
+
+        case BLOCK : printf("BLOCK STATEMENT \n");
+                    ASTprint(level+1,p->s0);
+                    break;
+
+        case ASSIGNSTMT : printf("ASSIGNMENT STATEMENT \n");
+                    ASTprint(level+1,p->s0);
+                    ASTprint(level+1,p->s1);
+                    break;
+
+        case IFSTMT : printf("IF STATEMENT \n");
+                    ASTprint(level+1,p->s0);
+                    ASTprint(level+2,p->s1);
+                    if(p->s2 != NULL){
+                        printf("ELSE \n");
+                        ASTprint(level+2,p->s2);
+                    }
+                    break;
+
+
+        case ARGLIST : printf("ARGLIST\n");
+                       ASTprint(level+1,p->s0);
+                    break;
+
+        case READSTMT : printf("READ STATEMENT \n");
+                        ASTprint(level+1,p->s0);
+                    break;
+
+        case RETURNSTMT : printf("RETURN STATEMENT");
+                          ASTprint(level+1,p->s0);
+                    break;
+
+        case CALL : printf("CALL: %s \n", p->name);
+                    ASTprint(level+1,p->s0);
+                    break;
+
+        case EXPRSTMT : printf("EXPR STMT \n");
+                        ASTprint(level+1,p->s0);
+                    break;
         //where all the case statements go: 
 
         default: printf("unknown type in ASTprint\n");
@@ -63,8 +143,8 @@ void ASTprint(int level,ASTnode *p)
 
        }
      }
-
-}
+     ASTprint(level -1, p->next);
+}//end ASTprint
 
 
 

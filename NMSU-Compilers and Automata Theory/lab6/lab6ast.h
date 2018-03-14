@@ -30,8 +30,6 @@ enum ASTtype {
    NUMBER,
    ARGLIST,
 
-
-
 };
 
 enum OPERATORS {
