@@ -1,7 +1,7 @@
 /*
-*  Lex Program
+*  Lex Program for AST 
 * Christian McGovern
-* Lab 5, 2/28
+* Lab 6, 2/28
 */
 %{
 
@@ -15,7 +15,7 @@ static int lineno=1;
 
 letter 		[a-zA-Z][a-zA-Z]*
 num 		[0-9][0-9]*
-id 			{letter}({letter}|{num})*
+id 		{letter}({letter}|{num})*
 
 /*Begin Rules*/
 %%
@@ -65,9 +65,9 @@ write		{//if (mydebug) fprintf(stderr,"write found\n");
 
 [ \t]		{}
 [;]		        {// if (mydebug) fprintf(stderr, "return a semicolon %c\n", *yytext);
-					   return (*yytext);}
+					   				   return (*yytext);}
 [<>=()\-+*/%&\[\]|;{},] 	{ //if (mydebug) fprintf(stderr,"return a token %c\n",*yytext); //added () to set
-                       return (*yytext);}
+                       					                   return (*yytext);}
 \n 			{lineno++;} 
                        
 

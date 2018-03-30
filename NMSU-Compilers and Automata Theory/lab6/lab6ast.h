@@ -1,3 +1,10 @@
+/*
+ Header file for lab6ast.c
+
+ Christian McGovern 
+ March 28th, 2018
+*/
+
 #ifndef LAB6AST_H
 #define LAB6AST_H
 #include <stdio.h>
@@ -22,6 +29,7 @@ enum ASTtype {
    EXPRSTMT,
    ASSIGNSTMT,
    IFSTMT,
+   WHILESTMT,
    READSTMT,
    RETURNSTMT,
    WRITESTMT,

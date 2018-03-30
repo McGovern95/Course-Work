@@ -6,7 +6,7 @@ void main(void)
 {
   read y[3 + z[2]];
   read z;
-  write 5+z -2 +2 +3 ;
+  write 5+z -2 +2 +3;
   x=z+y;
 }
 

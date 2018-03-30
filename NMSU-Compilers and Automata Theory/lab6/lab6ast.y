@@ -1,8 +1,10 @@
 /*
-  Lab6, AST program
+  Lab6, YACC file for lab6ast.c 
+  includes semantic action for 
+  building a AST 
 
   Christian McGovern
-  Feb 28 2018
+  March 28, 2018
 */
 
 
@@ -34,7 +36,7 @@ void yyerror (s)  /* Called by yyparse on error */
 	int value;
 	char * string;
 	ASTnode *node;  /* so we can build an AST */
-    enum OPERATORS operator;
+  	enum OPERATORS operator;
 }
 
 %token <string> ID
@@ -55,13 +57,12 @@ void yyerror (s)  /* Called by yyparse on error */
 %%	/* end specs, begin rules */
 
 P 		: 	DL /*program -Decleration-list*/
-            {program=$1;}
+            		{program=$1;}
 		;
 DL 		: 	DEC  {$$ = $1;}   
-		|   DEC DL   {$$ = $1; $$ = $1;
-					        $1->next=$2;
-					 }
-					
+		|   DEC DL {$$ = $1; 
+			    $$ = $1;
+			    $1->next=$2;}			
 		;
 
 DEC     : VARDEC{$$=$1;} | FUNDEC{$$=$1;}
@@ -69,19 +70,19 @@ DEC     : VARDEC{$$=$1;} | FUNDEC{$$=$1;}
 
 VARDEC  : typespec ID ';'{$$=ASTCreateNode(VARDEC);
                           $$->operator=$1;
-						              $$->name=$2;}
+			  $$->name=$2;}
 		| typespec ID '[' NUM ']' ';' {$$=ASTCreateNode(VARDEC); 
-                                   $$->name=$2;
-                                   $$->operator=$1;
-                                   $$->value=$4;}
+                                   	       $$->name=$2;
+                                   	       $$->operator=$1;
+                                   	       $$->value=$4;}
 		;
 
-typespec	: INT   {$$ = INTDEC;}
-            | VOID  {$$ = VOIDDEC;}
+typespec  : INT   {$$ = INTDEC;}
+          | VOID  {$$ = VOIDDEC;}
 			;	
 
 FUNDEC  : typespec ID '(' params ')' compoundstmt {$$=ASTCreateNode(FUNCTDEC); 
-														                       $$->operator =$1;
+						   $$->operator =$1;
                                                    $$->name=$2;
                                                    $$->s0 = $4;
                                                    $$->s1 = $6;}
@@ -92,57 +93,54 @@ params	: VOID       {$$ = NULL;}
 		;
 
 paramlist	: param  {$$ = $1;}
-			| param ',' paramlist {
-			                       $1->next=$3;
-			                       $$=$1;
-			                       //ASTattachleft($1, $3);
-			}
+			| param ',' paramlist {$1->next=$3;
+			                       $$=$1;}
 			;
 
 param   : typespec ID  {$$=ASTCreateNode(PARAM);
-						            $$->operator=$1;
+		        $$->operator=$1;
                         $$->name=$2;}
 		| typespec ID '[' NUM ']' {$$=ASTCreateNode(PARAM);
-							                 $$->operator=$1;
-                               $$->name=$2;
-                               $$->value=$4;}
+					  $$->operator=$1;
+                               		  $$->name=$2;
+                               		  $$->value=$4;}
 		;
 
-compoundstmt : '{' localdeclarations statementlist '}'  {$$=ASTCreateNode(BLOCK);
-                                                             if ($2==NULL) 
-                                                                  $$->s0=$3;
-                                                             else{  
-                                                                $$->s0=$2;
-                                                                $$->s1=$3;
-                                                                //ASTattachleft($2,$3);
-                                                             }}
+compoundstmt : '{' localdeclarations statementlist '}' {$$=ASTCreateNode(BLOCK);
+                                                        if ($2==NULL) 
+                                                            $$->s0=$3;
+                                                        else{  
+                                                            $$->s0=$2;
+                                                            $$->s1=$3;}}
 			 ;
 
 localdeclarations : /* empty */ {$$=NULL;}
 				  | VARDEC localdeclarations {$1->next=$2;
-                                      $$=$1;}
+                                      			      $$=$1;}
 				  ;
 
 statementlist : /*empty */ {$$=NULL;} 
-			  | statement statementlist {if($1 !=NULL)
-                                      {$1->next=$2;
-                                       $$=$1;}
-                                   else $$=$2;}
+			  | statement statementlist {if($1 !=NULL){
+							$1->next=$2;
+                                       			$$=$1;}
+                                   		     else $$=$2;}
 			  ;
 
-statement :  expressionstmt {$$ = $1;}
-		  |	 compoundstmt   {$$ = $1;}
+statement : expressionstmt {$$ = $1;}
+		  |  compoundstmt   	{$$ = $1;}
 		  |  selectionstmt	{$$ = $1;}
 		  |  iterationstmt	{$$ = $1;}
 		  |  assignmentstmt	{$$ = $1;}
-		  |  returnstmt		  {$$ = $1;}
-		  |  readstmt		    {$$ = $1;}
-		  |  writestmt		  {$$ = $1;}
+		  |  returnstmt		{$$ = $1;}
+		  |  readstmt		{$$ = $1;}
+		  |  writestmt		{$$ = $1;}
 		  ;
 
-expressionstmt : ';' { $$=NULL; }
-			   | expression ';' { $$=ASTCreateNode(EXPRSTMT);
-                            $$->s0=$1;}
+expressionstmt : ';' {$$=NULL;
+		      $$=ASTCreateNode(EXPRSTMT);
+		      $$->s0=NULL;}
+	       | expression ';' {$$=ASTCreateNode(EXPRSTMT);
+	       		         $$->s0=$1;}
 			   ;
 
 assignmentstmt  : var '=' expression ';' {$$=ASTCreateNode(ASSIGNSTMT);
@@ -150,30 +148,30 @@ assignmentstmt  : var '=' expression ';' {$$=ASTCreateNode(ASSIGNSTMT);
                                           $$->s1=$3;}
 			   ;
 
-selectionstmt : IF '(' expression ')' statement { $$=ASTCreateNode(IFSTMT);
-                                                  $$->s0=$3;
-                                                  $$->s1=$5;
-                                                  $$->s2=NULL;}
+selectionstmt : IF '(' expression ')' statement {$$=ASTCreateNode(IFSTMT);
+                                                 $$->s0=$3;
+                                                 $$->s1=$5;
+                                                 $$->s2=NULL;}
 
 			  | IF '(' expression ')' statement ELSE statement {$$=ASTCreateNode(IFSTMT);
-                                                  $$->s0=$3;
-                                                  $$->s1=$5;
-                                                  $$->s2=$7;}
+                                                          		    $$->s0=$3;
+                                                          	            $$->s1=$5;
+                                                                            $$->s2=$7;}
 			  ;
 
-iterationstmt : WHILE '(' expression ')' statement {$$=ASTCreateNode(WHILE);
-                                                $$->s0=$3;
-                                                $$->s1=$5;}
+iterationstmt : WHILE '(' expression ')' statement {$$=ASTCreateNode(WHILESTMT);
+                                                    $$->s0=$3;
+                                                    $$->s1=$5;}
 			 ;
 
 returnstmt : RETURN ';' {$$=ASTCreateNode(RETURNSTMT);
-                         $$->next=NULL;}
+                         $$->s0=NULL;}
 		   | RETURN expression ';' {$$=ASTCreateNode(RETURNSTMT);
-                                    $$->s0=$2;}
+                                	    $$->s0=$2;}
 		   ;
 
 readstmt : READ var ';' {$$=ASTCreateNode(READSTMT);
-                         $$->next=$2;}
+                         $$->s0=$2;}
 		 ;
 
 writestmt : WRITE expression ';' {$$=ASTCreateNode(WRITESTMT);
@@ -184,17 +182,19 @@ expression : simpleexpression {$$=$1;}
 		   ;
 
 var : ID   {$$=ASTCreateNode(IDENTIFER);
-			$$->name=$1;}
+			      $$->name=$1;
+			      $$->s0=NULL;}
     | ID '[' expression ']' {$$=ASTCreateNode(IDENTIFER);
-	                           $$->name=$1;
-		                         $$->s0=$3;}
+	                     $$->name=$1;
+		             $$->s0=$3;}
     ;
 
 simpleexpression : additiveexpression {$$=$1;}
-				 | additiveexpression relop simpleexpression {$$=ASTCreateNode(EXPR);
-                                                     $$->s0=$1;
-                                                     $$->s1=$3;
-                                                     $$->operator=$2;}
+ 		  /*switched simpleexpr with additiveexpr*/
+		 | simpleexpression relop additiveexpression {$$=ASTCreateNode(EXPR);
+                                                     	      $$->s0=$1;
+                                                     	      $$->s1=$3;
+                                                     	      $$->operator=$2;}
 				 ;
 
 relop : LE {$$=LESSTHANEQUAL;}
@@ -206,17 +206,19 @@ relop : LE {$$=LESSTHANEQUAL;}
       ;
 
 additiveexpression : term {$$=$1;}
-				   | term addop additiveexpression {$$=ASTCreateNode(EXPR);
-                                                     $$->s0=$1;
-                                                     $$->s1=$3;
-                                                     $$->operator=$2;}
+		    /*switched additive with term*/
+		   | additiveexpression addop term {$$=ASTCreateNode(EXPR);
+                                            	    $$->s0=$1;
+                                            	    $$->s1=$3;
+                                            	    $$->operator=$2;}
 				   ;
 
 addop : '+'{$$=PLUS;} | '-' {$$=MINUS;}
 	  ;
 
 term : factor {$$=$1;}
-	 | factor multop term {$$=ASTCreateNode(EXPR);
+	   /*switched term with factor*/
+     | term multop factor {$$=ASTCreateNode(EXPR);
                            $$->s0=$1;
                            $$->s1=$3;
                            $$->operator=$2;}
@@ -242,11 +244,11 @@ args : /*empty*/ {$$=NULL;} | arglist{$$=$1;}
 	 ;
 
 arglist : expression {$$=ASTCreateNode(ARGLIST);
-                                   $$->s0=$1;
-                                   $$->next=NULL;}
-		| expression ',' arglist  {$$=ASTCreateNode(ARGLIST);
-                                   $$->next=$3;
-                                   $$->s0=$1;}
+                      $$->s0=$1;
+                      $$->next=NULL;}
+	| expression ',' arglist  {$$=ASTCreateNode(ARGLIST);
+                               	   $$->next=$3;
+                               	   $$->s0=$1;}
 		;
 
 

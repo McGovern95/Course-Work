@@ -1,4 +1,4 @@
-/*   Abstract syntax tree code
+/*   Abstract syntax tree codeS
 
      This code is used to define an AST node, 
     routine for printing out the AST
@@ -8,6 +8,16 @@
 
     Shaun Cooper February 2015
 
+*/
+
+/*
+   Abstract syntax tree code 
+
+   Code which takes in input code and outputs it into a 
+   Abstract Syntax tree. 
+  
+  Christian McGovern 
+  March 28th, 2018
 */
 
 #include<stdio.h>
@@ -33,14 +43,14 @@ ASTnode *ASTCreateNode(enum ASTtype mytype)
 
 /* attach q to the left most part of p */
 void ASTattachleft(ASTnode *p,ASTnode *q)
-{
-        while(p->next ==NULL){
+{   
+        //not used yet
+        /*while(p->next ==NULL){
             p = p->next;
             p->next = q;
-        }
+        }*/
         
 }
-
 
 
 /*  Print out the abstract syntax tree */
@@ -50,16 +60,19 @@ void ASTprint(int level,ASTnode *p)
    if (p == NULL ) return;
    else
      { 
-     for (i=0;i<level;i++) printf("\t"); /* print tabbing blanks */
+     for (i=0;i<level;i++) printf(" "); /* print tabbing blanks */
       
        switch (p->type) {
-
+	//beginning of case statements
         case VARDEC :  printf("Variable ");
+
                      if(p->operator == INTDEC)
                         printf("INT");
                      if(p->operator == VOIDDEC)
                            printf("VOID");
+
                         printf(" %s",p->name);
+
                      if (p->value > 0)
                         printf("[%d]",p->value);
                      printf("\n");
@@ -73,16 +86,16 @@ void ASTprint(int level,ASTnode *p)
 
                      printf("FUNCTION %s \n",p->name);
 
-                     if (p->s1 == NULL){
+                     if (p->s0 == NULL){
                         printf(" (VOID) ");
                      }
                      else{
-                        printf("{ \n");
-                        ASTprint(level+2,p->s1);
-                        printf("} ");
+                        printf("( \n");
+                        ASTprint(level+2,p->s0);
+                        printf(") ");
                      }
                      printf("\n");
-                     ASTprint(level+2,p->s0);
+                     ASTprint(level+2,p->s1);
                      break;
 
         case PARAM : printf("PARAMETER ");
@@ -96,54 +109,125 @@ void ASTprint(int level,ASTnode *p)
                     ASTprint(level+1,p->s0);
                     break;
 
-
-
         case BLOCK : printf("BLOCK STATEMENT \n");
+
                     ASTprint(level+1,p->s0);
+                    ASTprint(level+1,p->s1);
                     break;
 
         case ASSIGNSTMT : printf("ASSIGNMENT STATEMENT \n");
+
                     ASTprint(level+1,p->s0);
                     ASTprint(level+1,p->s1);
                     break;
 
         case IFSTMT : printf("IF STATEMENT \n");
+
                     ASTprint(level+1,p->s0);
                     ASTprint(level+2,p->s1);
+                    //else 
                     if(p->s2 != NULL){
-                        printf("ELSE \n");
+                        for (i=0;i<level;i++) printf(" ");
+                        printf("ELSE STATEMENT \n");
                         ASTprint(level+2,p->s2);
                     }
                     break;
 
+        case WHILESTMT : printf("WHILE STATEMENT \n");
 
-        case ARGLIST : printf("ARGLIST\n");
+                         ASTprint(level+1,p->s0);
+                         ASTprint(level+2,p->s1);
+                    break;
+
+
+        case ARGLIST : printf("ARGLIST \n");
+
                        ASTprint(level+1,p->s0);
                     break;
 
+        case WRITESTMT : printf("WRITE STMT \n");
+
+                         ASTprint(level+1,p->s0);
+                    break;  
+
         case READSTMT : printf("READ STATEMENT \n");
+
                         ASTprint(level+1,p->s0);
                     break;
 
-        case RETURNSTMT : printf("RETURN STATEMENT");
-                          ASTprint(level+1,p->s0);
+        case RETURNSTMT :
+                         if(p->s0 == NULL){
+                            printf("RETURN STATEMENT \n");
+                            //ASTprint(level+1,p->s0);
+                         }
+                         else{
+                            printf("RETURN STATEMENT with expression: \n");
+                            ASTprint(level+1,p->s0);
+                         }   
                     break;
 
         case CALL : printf("CALL: %s \n", p->name);
+
                     ASTprint(level+1,p->s0);
                     break;
 
-        case EXPRSTMT : printf("EXPR STMT \n");
+        case EXPRSTMT : printf("EXPRESSION STATEMENT \n");
+                        
                         ASTprint(level+1,p->s0);
                     break;
-        //where all the case statements go: 
+
+        case EXPR :
+                    if(p->operator == PLUS)
+                        printf("EXPR + \n");
+                    if(p->operator == MINUS)
+                        printf("EXPR - \n");
+                    if(p->operator == TIMES)
+                        printf("EXPR * \n");
+                    if(p->operator == DIV)
+                        printf("EXPR / \n");
+                    if(p->operator == LESSTHANEQUAL)
+                        printf("EXPR <= \n");
+                    if(p->operator == LESSTHAN)
+                        printf("EXPR < \n");
+                    if(p->operator == GREATERTHAN)
+                        printf("EXPR > \n");
+                    if(p->operator == GREATERTHANEQUAL)
+                        printf("EXPR >= \n");
+                    if(p->operator == EQUAL)
+                        printf("EXPR = \n");
+                    if(p->operator == NOTEQUAL)
+                        printf("EXPR != \n");
+
+                    ASTprint(level+1,p->s0);
+                    ASTprint(level+1,p->s1);
+                    break;
+
+        case NUMBER : printf("NUMBER with value: %d \n", p->value);
+
+                      ASTprint(level+1,p->s0);
+                      break;
+
+        case IDENTIFER: 
+                        if (p->s0 == NULL){
+                        printf("IDENTIFER %s \n",p->name);
+                        ASTprint(level+1,p->s0);
+                        }
+                        else{
+                            printf("IDENTIFER %s \n",p->name);
+			    for (i=0;i<level;i++) printf(" ");
+                            printf("array reference [ \n");
+                            ASTprint(level+1,p->s0);
+                            for (i=0;i<level;i++) printf(" ");
+                            printf("] end array \n");
+                        }
+                      break;
 
         default: printf("unknown type in ASTprint\n");
-
-
+                
        }
      }
-     ASTprint(level -1, p->next);
+     //won't print ast without this
+     ASTprint(level, p->next);
 }//end ASTprint
 
 
