@@ -1,3 +1,10 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "desfunct.h"
+
+
 /********************************************/
 /* Tables for initial and final permutation */
 /********************************************/
@@ -129,5 +136,35 @@ char S8[64] = {
 };
 
 char* SBOXMAP[] = {S1, S2, S3, S4, S5, S6, S7, S8};
+
+void keyGenerator(unsigned char* key) {
+	
+	int i;
+	for (i=0; i<8; i++){ 
+		key[i] = rand()%255;
+	}
+}//end keyGenerate();
+
+void ivGenerator(unsigned char* iv){
+
+
+}//end IVGenerator();
+
+void subkeyGenerator(unsigned char* mainkey, set_key* keysets){
+
+
+}//end subkeyGenerator();
+
+void desFunction(unsigned char* message, unsigned char* processed, set_key* setkeys, int mode){
+
+
+}//end desFunction();
+
+
+
+
+
+
+
 
 
