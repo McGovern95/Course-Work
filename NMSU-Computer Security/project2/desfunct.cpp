@@ -9,7 +9,7 @@
 /* Tables for initial and final permutation */
 /********************************************/
 
-// initial permutation
+// initial mpermutation
 char IP[64] = {
 	58,	50,	42,	34,	26,	18,	10,	2,
 	60,	52,	44,	36,	28,	20,	12,	4,
@@ -31,6 +31,13 @@ char FP[64] = {
 	35,	3,	43,	11,	51,	19,	59,	27,
 	34,	2,	42,	10,	50,	18,	58,	26,
 	33,	1,	41,	9,	49,	17,	57,	25
+};
+
+int HP[] = {
+	16,     7,      20,     21,     29,     12,     28,     17,	 
+	 1,    15, 	23, 	26,	 5, 	18, 	31, 	10,
+	 2,  	8, 	24, 	14, 	32, 	27,  	 3,  	 9,
+	19,    13, 	30,  	 6, 	22, 	11,  	 4, 	25
 };
 
 
@@ -146,25 +153,335 @@ void keyGenerator(unsigned char* key) {
 }//end keyGenerate();
 
 void ivGenerator(unsigned char* iv){
-
+	int i;
+	for (i=0; i<8; i++){ 
+		iv[i] = rand()%255;
+	}
 
 }//end IVGenerator();
 
-void subkeyGenerator(unsigned char* mainkey, set_key* keysets){
+void subkeyGenerator(unsigned char* mainKey, keySet* keySets){
+   int i, j;
+	int shiftSize;
+	unsigned char shiftByte, firstShiftBits, secondShiftBits, thirdShiftBits, fourthShiftBits;
+
+	for (i=0; i<8; i++) {
+		keySets[0].k[i] = 0;
+	}
+
+	for (i=0; i<56; i++) {
+		shiftSize = PC1[i];
+		//changed hex 0x80 to 128
+		shiftByte = 128 >> ((shiftSize - 1)%8);
+		shiftByte &= mainKey[(shiftSize - 1)/8];
+		shiftByte <<= ((shiftSize - 1)%8);
+
+		keySets[0].k[i/8] |= (shiftByte >> i%8);
+	}
+
+	for (i=0; i<3; i++) {
+		keySets[0].c[i] = keySets[0].k[i];
+	}
+
+	//changed hex 0xf0 to 240
+	keySets[0].c[3] = keySets[0].k[3] & 240;
+
+	for (i=0; i<3; i++) {
+		//changed hex 0x0f to 15
+		keySets[0].d[i] = (keySets[0].k[i+3] & 15) << 4;
+		//changed hex 0xf0 to 240
+		keySets[0].d[i] |= (keySets[0].k[i+4] & 240) >> 4;
+	}
+
+	//changed hex 0x0f to 240
+	keySets[0].d[3] = (keySets[0].k[6] & 240) << 4;
+
+	//prob 16 rounds in here 
+	for (i=1; i<17; i++) {
+		for (j=0; j<4; j++) {
+			keySets[i].c[j] = keySets[i-1].c[j];
+			keySets[i].d[j] = keySets[i-1].d[j];
+		}
+               int keyShiftSizes[] = {-1, 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1};
+		shiftSize = keyShiftSizes[i];
+		if (shiftSize == 1){
+			//changed hex 0x80 to 128
+			shiftByte = 128;
+		} else {
+			//changed hex 0xc0 to 192
+			shiftByte = 192;
+		}
+
+		// Process C
+		firstShiftBits = shiftByte & keySets[i].c[0];
+		secondShiftBits = shiftByte & keySets[i].c[1];
+		thirdShiftBits = shiftByte & keySets[i].c[2];
+		fourthShiftBits = shiftByte & keySets[i].c[3];
+
+		keySets[i].c[0] <<= shiftSize;
+		keySets[i].c[0] |= (secondShiftBits >> (8 - shiftSize));
+
+		keySets[i].c[1] <<= shiftSize;
+		keySets[i].c[1] |= (thirdShiftBits >> (8 - shiftSize));
+
+		keySets[i].c[2] <<= shiftSize;
+		keySets[i].c[2] |= (fourthShiftBits >> (8 - shiftSize));
+
+		keySets[i].c[3] <<= shiftSize;
+		keySets[i].c[3] |= (firstShiftBits >> (4 - shiftSize));
+
+		// Process D
+		firstShiftBits = shiftByte & keySets[i].d[0];
+		secondShiftBits = shiftByte & keySets[i].d[1];
+		thirdShiftBits = shiftByte & keySets[i].d[2];
+		fourthShiftBits = shiftByte & keySets[i].d[3];
+
+		keySets[i].d[0] <<= shiftSize;
+		keySets[i].d[0] |= (secondShiftBits >> (8 - shiftSize));
+
+		keySets[i].d[1] <<= shiftSize;
+		keySets[i].d[1] |= (thirdShiftBits >> (8 - shiftSize));
+
+		keySets[i].d[2] <<= shiftSize;
+		keySets[i].d[2] |= (fourthShiftBits >> (8 - shiftSize));
+
+		keySets[i].d[3] <<= shiftSize;
+		keySets[i].d[3] |= (firstShiftBits >> (4 - shiftSize));
+
+		for (j=0; j<48; j++) {
+			shiftSize = PC2[j];
+			if (shiftSize <= 28) {
+				//changed hex 0x80 to 128
+				shiftByte = 128 >> ((shiftSize - 1)%8);
+				shiftByte &= keySets[i].c[(shiftSize - 1)/8];
+				shiftByte <<= ((shiftSize - 1)%8);
+			} else {
+				//changed hex 0x80 to 128
+				shiftByte = 128 >> ((shiftSize - 29)%8);
+				shiftByte &= keySets[i].d[(shiftSize - 29)/8];
+				shiftByte <<= ((shiftSize - 29)%8);
+			}
+
+			keySets[i].k[j/8] |= (shiftByte >> j%8);
+		}
+	}
+
+
+
 
 
 }//end subkeyGenerator();
 
-void desFunction(unsigned char* message, unsigned char* processed, set_key* setkeys, int mode){
+void desFunction(unsigned char* dataBlock, unsigned char* processedBlock, keySet* keySets, int mode){
+
+	int i, k;
+	int shiftSize;
+	unsigned char shiftByte;
+
+	unsigned char initialPermutation[8];
+	memset(initialPermutation, 0, 8);
+	memset(processedBlock, 0, 8);
+
+	for (i=0; i<64; i++) {
+		shiftSize = IP[i];
+		//changed hex 0x80 to 128
+		shiftByte = 128 >> ((shiftSize - 1)%8);
+		shiftByte &= dataBlock[(shiftSize - 1)/8];
+		shiftByte <<= ((shiftSize - 1)%8);
+
+		initialPermutation[i/8] |= (shiftByte >> i%8);
+	}
+
+	unsigned char l[4], r[4];
+	for (i=0; i<4; i++) {
+		l[i] = initialPermutation[i];
+		r[i] = initialPermutation[i+4];
+	}
+
+	unsigned char ln[4], rn[4], er[6], ser[4];
+
+	int keyIndex;
+	for (k=1; k<=16; k++) {
+		memcpy(ln, r, 4);
+
+		memset(er, 0, 6);
+
+		for (i=0; i<48; i++) {
+			shiftSize = E[i];
+			//changed hex 0x80 to 128
+			shiftByte = 128 >> ((shiftSize - 1)%8);
+			shiftByte &= r[(shiftSize - 1)/8];
+			shiftByte <<= ((shiftSize - 1)%8);
+
+			er[i/8] |= (shiftByte >> i%8);
+		}
+                 //decryption is 0
+		if (mode == 0) {
+			keyIndex = 17 - k;
+		} else {
+			keyIndex = k;
+		}
+
+		for (i=0; i<6; i++) {
+			er[i] ^= keySets[keyIndex].k[i];
+		}
+
+		unsigned char row, column;
+
+		for (i=0; i<4; i++) {
+			ser[i] = 0;
+		}
+
+
+		// Byte 1
+		row = 0;
+		//changed hex 0x80 to 128
+		row |= ((er[0] & 128) >> 6);
+		//changed hex 0x04
+		row |= ((er[0] & 4) >> 2);
+
+		column = 0;
+		//changed hex 0x78 to 120
+		column |= ((er[0] & 120) >> 3);
+
+		ser[0] |= ((unsigned char)S1[row*16+column] << 4);
+
+		row = 0;
+		//changed hex 0x02 to 2
+		row |= (er[0] & 2);
+		//changed hex 0x10 to 16
+		row |= ((er[1] & 16) >> 4);
+
+		column = 0;
+		//changed hex 0x01 to 1
+		column |= ((er[0] & 1) << 3);
+		//changed hex 0xe0 to 224
+		column |= ((er[1] & 224) >> 5);
+
+		ser[0] |= (unsigned char)S2[row*16+column];
+
+		// Byte 2
+		row = 0;
+		//changed hex 0x08 to 8
+		row |= ((er[1] & 8) >> 2);
+		//changed hex 0x40 to 64
+		row |= ((er[2] & 64) >> 6);
+
+		column = 0;
+		//changed hex 0x07 to 7
+		column |= ((er[1] & 7) << 1);
+		//changed hex 0x80 to 128
+		column |= ((er[2] & 128) >> 7);
+
+		ser[1] |= ((unsigned char)S3[row*16+column] << 4);
+
+		row = 0;
+		//changed hex 0x20 to
+		row |= ((er[2] & 32) >> 4);
+		//changed hex 0x01 to 1
+		row |= (er[2] & 1);
+
+		column = 0;
+		//changed hex 0x1e to 30
+		column |= ((er[2] & 30) >> 1);
+
+		ser[1] |= (unsigned char)S4[row*16+column];
+
+		// Byte 3
+		row = 0;
+		//changed hex 0x80 to 128
+		row |= ((er[3] & 128) >> 6);
+		//changed hex 0x04 to 4
+		row |= ((er[3] & 4) >> 2);
+
+		column = 0;
+		//changed hex 0x78 to 120
+		column |= ((er[3] & 120) >> 3);
+
+		ser[2] |= ((unsigned char)S5[row*16+column] << 4);
+
+		row = 0;
+		//changed hex 0x02 to 2
+		row |= (er[3] & 2);
+		//changed hex 0x10 to 16
+		row |= ((er[4] & 16) >> 4);
+
+		column = 0;
+		//changed hex 0x01 to 1
+		column |= ((er[3] & 1) << 3);
+		//changed hex 0xe0 to 224
+		column |= ((er[4] & 224) >> 5);
+
+		ser[2] |= (unsigned char)S6[row*16+column];
+
+		// Byte 4
+		row = 0;
+		//changed hex 0x08 to 8
+		row |= ((er[4] & 8) >> 2);
+		//changed hex 0x40 to 64
+		row |= ((er[5] & 64) >> 6);
+
+		column = 0;
+		//changed hex 0x07 to 7
+		column |= ((er[4] & 7) << 1);
+		//changed hex 0x80 to 128
+		column |= ((er[5] & 128) >> 7);
+
+		ser[3] |= ((unsigned char)S7[row*16+column] << 4);
+
+		row = 0;
+		//changed hex 0x20 to 32
+		row |= ((er[5] & 32) >> 4);
+		//changed hex 0x01 to 1
+		row |= (er[5] & 1);
+
+		column = 0;
+		//changed hex 0x1e to 30
+		column |= ((er[5] & 30) >> 1);
+
+		ser[3] |= (unsigned char)S8[row*16+column];
+
+		for (i=0; i<4; i++) {
+			rn[i] = 0;
+		}
+
+		for (i=0; i<32; i++) {
+			shiftSize = HP[i];
+			//changed hex 0x80 to 128
+			shiftByte = 128 >> ((shiftSize - 1)%8);
+			shiftByte &= ser[(shiftSize - 1)/8];
+			shiftByte <<= ((shiftSize - 1)%8);
+
+			rn[i/8] |= (shiftByte >> i%8);
+		}
+
+		for (i=0; i<4; i++) {
+			rn[i] ^= l[i];
+		}
+
+		for (i=0; i<4; i++) {
+			l[i] = ln[i];
+			r[i] = rn[i];
+		}
+	}
+
+	unsigned char preEndPermutation[8];
+	for (i=0; i<4; i++) {
+		preEndPermutation[i] = r[i];
+		preEndPermutation[4+i] = l[i];
+	}
+
+	for (i=0; i<64; i++) {
+		shiftSize = FP[i];
+		//changed hex 0x80 to 128
+		shiftByte = 128 >> ((shiftSize - 1)%8);
+		shiftByte &= preEndPermutation[(shiftSize - 1)/8];
+		shiftByte <<= ((shiftSize - 1)%8);
+
+		processedBlock[i/8] |= (shiftByte >> i%8);
+	}
 
 
 }//end desFunction();
-
-
-
-
-
-
-
 
 
