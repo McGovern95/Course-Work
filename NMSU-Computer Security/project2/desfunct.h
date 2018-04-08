@@ -8,8 +8,7 @@ typedef struct subKeyType{
 	unsigned char t3[4];
 } subKey;
 
-void keyGenerator(unsigned char*);
-void ivGenerator(unsigned char*);
+void generator(unsigned char*, unsigned char*);
 void subkeyGenerator(subKey*, unsigned char*);
 void desFunction(subKey*, unsigned char*, unsigned char*, int);
 

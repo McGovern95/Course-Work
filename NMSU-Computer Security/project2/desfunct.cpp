@@ -145,20 +145,13 @@ char S8[64] = {
 char* SBOXMAP[] = {S1, S2, S3, S4, S5, S6, S7, S8};
 
 //255 for unsigned 0-255 random characters 
-void keyGenerator(unsigned char* key) {
+void generator(unsigned char* key, unsigned char* iv) {
 	
 	for (int i=0; i<8; i++){ 
 		key[i] = rand()%255;
-	}
-}//end keyGenerate();
-
-void ivGenerator(unsigned char* iv){
-
-	for (int i=0; i<8; i++){ 
 		iv[i] = rand()%255;
 	}
-
-}//end IVGenerator();
+}//end generator();
 
 /*
 	Helpful links:

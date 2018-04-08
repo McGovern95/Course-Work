@@ -48,10 +48,9 @@ int main(){
 		//seed for random generator
 		unsigned int seed = (unsigned int)time(NULL);
 		srand (seed);
-
-		keyGenerator(desKey);
-        ivGenerator(ivKey);
-
+        //generates the key and iv
+		generator(desKey,ivKey);
+     
 		writeToFile = fwrite(desKey, 1, 8, keyFile);
 		writeToFile = fwrite(ivKey, 1, 8, ivFile);
 
@@ -80,8 +79,6 @@ int main(){
 	ivRead = fread(ivKey, sizeof(unsigned char), 8, ivFile);
 	if (keyRead != 8 || ivRead != 8) {
 	      printf("Key and IV needs to be 8 bytes \n");
-	      fclose(keyFile);
-	      fclose(ivFile);
 	      return 1;
 	}	
     }//end already have key check
@@ -215,12 +212,13 @@ int main(){
 	     if(countBlock == totalBlock){
 
 		//xor the cipher with ivkey
-		for(int i=0; i< 8;i++)
+		for(int i=0; i<8;i++)
 			block[i] = (unsigned char)(block[i] ^ ivKey[i]);
-		
-
+	
 		desFunction(subKeys, block, desBlock, desMode);
-	        pad = desBlock[7];
+
+	    pad = desBlock[7];
+
 		if (pad<8){
 		writeToFile = fwrite(desBlock, 1, 8 - pad, outputFile);
 		
@@ -229,7 +227,7 @@ int main(){
 	  else{ 
 		
 		//xor the cipher with the iv key
-		for(int i=0; i< 8;i++)
+		for(int i=0; i<8;i++)
 			block[i] = (unsigned char)(block[i] ^ ivKey[i]);
 		
 		desFunction(subKeys, block, desBlock, desMode);
