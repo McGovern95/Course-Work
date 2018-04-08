@@ -1,10 +1,10 @@
-all: part2
+all: project2
 
-part2: desfunct.o part2.o 
-		g++ desfunct.o part2.o -o part2
+project2: desfunct.o project2.o 
+		g++ desfunct.o project2.o -o project2
 
-part2.o: part2.cpp desfunct.h
-		g++ -c part2.cpp
+project2.o: project2.cpp desfunct.h
+		g++ -c project2.cpp
 
 desfunct.o:	desfunct.cpp desfunct.h
 				g++ -c desfunct.cpp
