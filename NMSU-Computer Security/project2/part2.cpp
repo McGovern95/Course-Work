@@ -11,50 +11,54 @@ using namespace std;
 #define SIZEOFKEY (unsigned char*) malloc(8*sizeof(char))
 
 int main(){
-
-   static FILE *input, *output, *keyFile, *ivFile;
+   
+   static FILE *inputFile, *outputFile, *keyFile, *ivFile;
    unsigned long size;
-   short int pad;
    char* temp;
-   //DES key set vars
-   short int bytesWritten, desMode;
-   unsigned long blockCount = 0, numberOfBlocks;
-   unsigned char* dataBlock = SIZEOFKEY;
-   unsigned char* processedBlock = SIZEOFKEY;
-   keySet* keySets = (keySet*)malloc(17*sizeof(keySet));
+   int writeToFile, desMode, pad, keyRead, ivRead;
+   unsigned long countBlock, totalBlock;
+   //key variables 
+   unsigned char* block = SIZEOFKEY;
+   unsigned char* desBlock = SIZEOFKEY;
+   subKey* subKeys = (subKey*)malloc(17*sizeof(subKey));
    unsigned char* desKey = SIZEOFKEY;
    unsigned char* ivKey = SIZEOFKEY;
 
     int choice;
-    printf("Please enter a 1 if you want to generate your own key and IV, or 0 if you want to provide your own key and IV.\n");
+    printf("Please enter a 1 if you want to generate your own key and IV," 
+           "or a 0 if you want to provide your own key and IV.\n(please use "
+           "the same key and iv that you "
+           "encrypted with to successfully decrypt)\n");
     cin >> choice;
     if(choice != 0 && choice !=1){
     	printf("please enter a 1 or 0 \n");
         return 1;
     }
+      //key generation code
       if(choice == 1){
          printf("Generating key into key.txt\n");
-	 printf("Generating IV into iv.txt\n");
+	     printf("Generating IV into iv.txt\n");
          keyFile = fopen("key.txt","wb");
-	 ivFile = fopen("iv.txt","wb");
+	     ivFile = fopen("iv.txt","wb");
          if(!keyFile || !ivFile){
          	printf("error creating file");
             return 1;
          }
-                short int bytesWritten;
-		short int ivWritten;
+        
 		//seed for random generator
 		unsigned int seed = (unsigned int)time(NULL);
 		srand (seed);
 
 		keyGenerator(desKey);
         ivGenerator(ivKey);
-		bytesWritten = fwrite(desKey, 1, 8, keyFile);
-		ivWritten = fwrite(ivKey, 1, 8, ivFile);
+
+		writeToFile = fwrite(desKey, 1, 8, keyFile);
+		writeToFile = fwrite(ivKey, 1, 8, ivFile);
+
 		fclose(keyFile);
 		fclose(ivFile);
       } //end key generator code 
-
+    //key provided by user code
     else if(choice == 0){
         printf("what is your key file? \n");
         scanf("%s", temp);
@@ -72,12 +76,9 @@ int main(){
 	    return 1;
 	}
 
-
-	short int bytesRead;
-	short int ivRead;
-	bytesRead = fread(desKey, sizeof(unsigned char), 8, keyFile);
+	keyRead = fread(desKey, sizeof(unsigned char), 8, keyFile);
 	ivRead = fread(ivKey, sizeof(unsigned char), 8, ivFile);
-	if (bytesRead != 8 || ivRead != 8) {
+	if (keyRead != 8 || ivRead != 8) {
 	      printf("Key and IV needs to be 8 bytes \n");
 	      fclose(keyFile);
 	      fclose(ivFile);
@@ -88,16 +89,16 @@ int main(){
     /*
 		CREATES SUBKEYS
 	*/
-	subkeyGenerator(desKey, keySets);
+	subkeyGenerator(subKeys, desKey);
 
 
      char choice2;
-     printf("did you want to Encrypt or Decrypt? (e/d) \n");
-      cin >> choice2; 
-       if(choice2 != 'e' && choice2 !='d'){
-    	printf("please enter an 'e' or 'd' \n");
-        return 1;
-   	}
+     printf("did you want to Encrypt or Decrypt? (e/d)\n");
+     cin >> choice2; 
+      if(choice2 != 'e' && choice2 !='d'){
+    	 printf("please enter an 'e' or 'd' \n");
+          return 1;
+   	  }
 
 /*
 
@@ -105,76 +106,72 @@ int main(){
 
 */
 
-      if(choice2 == 'e'){
+    if(choice2 == 'e'){
 	printf("Please enter the plain text to be encrypted \n");
 	scanf("%s", temp);
-	input = fopen(temp,"r");
-	if(input==NULL){
+	inputFile = fopen(temp,"r");
+	if(inputFile==NULL){
 	   printf("%s does not exist \n",temp);
 	   return 1;
 	}
-         printf("The cipher will be put in cipher.txt \n");
-	 output = fopen("cipher.txt","wb");
+    printf("The cipher will be put in cipher.txt \n");
+	outputFile = fopen("cipher.txt","wb");
   
-       //encrypt stuff
 	desMode = 1;
-        printf("Encrypting--------- \n");
-    
-	fseek(input, 0L, SEEK_END);
-
-	size = ftell(input);
-
-	fseek(input, 0L, SEEK_SET);
+    printf("Encrypting--------- \n");
+    //fseek to find # of block
+	fseek(inputFile, 0L, SEEK_END);
+	size = ftell(inputFile);
+	fseek(inputFile, 0L, SEEK_SET);
 	
+	//puts inputfile into blocks
 	if(size%8)
-		numberOfBlocks = size/8 +1;
+		totalBlock = size/8 +1;
 	else
-		numberOfBlocks = size/8;
-
-	
-	while(fread(dataBlock,1,8,input)){
-	     blockCount++;
-	     if(blockCount == numberOfBlocks){
-	        pad = 8 - size%8;
+		totalBlock = size/8;
+  
+	//reads through input file and pads and encrypts
+	countBlock = 0;
+	while(fread(block,1,8,inputFile)){
+	     countBlock++;
+	    if(countBlock == totalBlock){
+	       pad = 8 - size%8;
 		if(pad < 8){
-		 memset((dataBlock + 8 - pad), (unsigned char)pad,pad);
+		 memset((block + 8 - pad), (unsigned char)pad,pad);
 		}//end pad<8 
 		
-		desFunction(dataBlock, processedBlock, keySets, desMode);
+		desFunction(subKeys, block, desBlock, desMode);
 
-		//this is xor the plaintxt with the ivkey
-		int i;
-		for(i=0; i< 8;i++){
-			processedBlock[i] = (char)(processedBlock[i] ^ ivKey[i]);
-		}
-		bytesWritten = fwrite(processedBlock, 1, 8, output);
+		//xor the plaintxt with the ivkey
+		for(int i=0; i< 8;i++)
+			desBlock[i] = (unsigned char)(desBlock[i] ^ ivKey[i]);
+		
+		writeToFile = fwrite(desBlock, 1, 8, outputFile);
 
             if (pad == 8){ // Write an extra block for padding
-		memset(dataBlock, (unsigned char)pad, 8);
-	        desFunction(dataBlock, processedBlock, keySets, desMode);
+		    memset(block, (unsigned char)pad, 8);
+	        desFunction(subKeys, block, desBlock, desMode);
 		
-		//this is xor the encrypted plaintxt with ivkey
-		int i;
-		for(i=0; i< 8;i++){
-			processedBlock[i] = (char)(processedBlock[i] ^ ivKey[i]);
-		}
-		bytesWritten = fwrite(processedBlock, 1, 8, output);
+		//xor the encrypted plaintxt with ivkey
+		for(int i=0; i<8;i++)
+			desBlock[i] = (unsigned char)(desBlock[i] ^ ivKey[i]);
+		
+		writeToFile = fwrite(desBlock, 1, 8, outputFile);
 
 	     }//end padding ==8
          
-	}//end if blockcount ==
+	}//end if countBlock ==
 	  else{ 
-		desFunction(dataBlock, processedBlock, keySets, desMode);
+		desFunction(subKeys, block, desBlock, desMode);
 		
-		//this is xor the encrypted plaintxt with ivkey
-		int i;
-		for(i=0; i< 8;i++){
-			processedBlock[i] = (char)(processedBlock[i] ^ ivKey[i]);
-		}
-		bytesWritten = fwrite(processedBlock, 1, 8, output);
+		//xor the encrypted plaintxt with ivkey
+		for(int i=0; i<8;i++)
+			desBlock[i] = (unsigned char)(desBlock[i] ^ ivKey[i]);
+		
+		writeToFile = fwrite(desBlock, 1, 8, outputFile);
 
 	   }//end else
-	memset(dataBlock, 0, 8);
+	memset(block, 0, 8);
 	
       }//end while
 	
@@ -186,65 +183,68 @@ int main(){
 
 */
 
-        else if(choice2 == 'd'){
+    else if(choice2 == 'd'){
 	printf("Please enter the cipher text to be decrypted \n");
 	scanf("%s", temp);
-	input = fopen(temp,"r");
-	if(input==NULL){
+	inputFile = fopen(temp,"r");
+	if(inputFile==NULL){
 	   printf("%s does not exist \n",temp);
 	   return 1;
 	}
 
-      printf("The decrypted cipher will be put in decrpyt.txt \n");
-      output = fopen("decrypt.txt","wb");
+    printf("The decrypted cipher will be put in decrypt.txt \n");
+    outputFile = fopen("decrypt.txt","wb");
 
+    desMode = 0;
 	printf("Decrypting---------- \n");
-	//decryption stuff
-	desMode = 0;
+	
+    //fseek to find # of block
+	fseek(inputFile, 0L, SEEK_END);
+	size = ftell(inputFile);
+	fseek(inputFile, 0L, SEEK_SET);
 
-	fseek(input, 0L, SEEK_END);
-	size = ftell(input);
-
-	fseek(input, 0L, SEEK_SET);
 	if(size%8)
-		numberOfBlocks = size/8 + 1;
+		totalBlock = size/8 + 1;
 	else
-		numberOfBlocks = size/8;
+		totalBlock = size/8;
 
-	while(fread(dataBlock,1,8,input)){
-	     blockCount++;
-	     if(blockCount == numberOfBlocks){
+   countBlock = 0;
+   //reads through input file and pads and decrypts
+	while(fread(block,1,8,inputFile)){
+	     countBlock++;
+	     if(countBlock == totalBlock){
 
-		//this is xor the cipher with ivkey
-		int i;
-		for(i=0; i< 8;i++){
-			dataBlock[i] = (char)(dataBlock[i] ^ ivKey[i]);
-		}
+		//xor the cipher with ivkey
+		for(int i=0; i< 8;i++)
+			block[i] = (unsigned char)(block[i] ^ ivKey[i]);
+		
 
-		desFunction(dataBlock, processedBlock, keySets, desMode);
-	        pad = processedBlock[7];
-		if (pad < 8){
-		bytesWritten = fwrite(processedBlock, 1, 8 - pad, output);
+		desFunction(subKeys, block, desBlock, desMode);
+	        pad = desBlock[7];
+		if (pad<8){
+		writeToFile = fwrite(desBlock, 1, 8 - pad, outputFile);
 		
 		}
-	}//end if blockcount ==
+	}//end if countBlock ==
 	  else{ 
 		
-		//this is xor the cipher with the iv key
-		int i;
-		for(i=0; i< 8;i++){
-			dataBlock[i] = (char)(dataBlock[i] ^ ivKey[i]);
-		}
-		desFunction(dataBlock, processedBlock, keySets, desMode);
-		bytesWritten = fwrite(processedBlock, 1, 8, output);
+		//xor the cipher with the iv key
+		for(int i=0; i< 8;i++)
+			block[i] = (unsigned char)(block[i] ^ ivKey[i]);
+		
+		desFunction(subKeys, block, desBlock, desMode);
+		writeToFile = fwrite(desBlock, 1, 8, outputFile);
 
 	   }//end else
-	memset(dataBlock, 0, 8);
+	  memset(block, 0, 8);
 	
       }//end while
 
        }//end decrpytion choice
   
+  fclose(inputFile);
+  fclose(outputFile);
+
   return 0;
 
 }//end main();

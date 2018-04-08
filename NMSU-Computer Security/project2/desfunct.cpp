@@ -21,6 +21,14 @@ char IP[64] = {
 	63,	55,	47,	39,	31,	23,	15,	7
 };
 
+//  half permutation
+int HP[32] = {
+	16,  7,  20, 21, 29, 12, 28, 17,	 
+	 1, 15,  23, 26,  5, 18, 31, 10,
+	 2,  8,  24, 14, 32, 27,  3,  9,
+	19, 13,  30,  6, 22, 11,  4, 25
+};
+
 // final permutation
 char FP[64] = {
 	40,	8,	48,	16,	56,	24,	64,	32,
@@ -32,14 +40,6 @@ char FP[64] = {
 	34,	2,	42,	10,	50,	18,	58,	26,
 	33,	1,	41,	9,	49,	17,	57,	25
 };
-
-int HP[] = {
-	16,     7,      20,     21,     29,     12,     28,     17,	 
-	 1,    15, 	23, 	26,	 5, 	18, 	31, 	10,
-	 2,  	8, 	24, 	14, 	32, 	27,  	 3,  	 9,
-	19,    13, 	30,  	 6, 	22, 	11,  	 4, 	25
-};
-
 
 /*******************************/
 /* Tables for the key schedule */
@@ -144,343 +144,361 @@ char S8[64] = {
 
 char* SBOXMAP[] = {S1, S2, S3, S4, S5, S6, S7, S8};
 
+//255 for unsigned 0-255 random characters 
 void keyGenerator(unsigned char* key) {
 	
-	int i;
-	for (i=0; i<8; i++){ 
+	for (int i=0; i<8; i++){ 
 		key[i] = rand()%255;
 	}
 }//end keyGenerate();
 
 void ivGenerator(unsigned char* iv){
-	int i;
-	for (i=0; i<8; i++){ 
+
+	for (int i=0; i<8; i++){ 
 		iv[i] = rand()%255;
 	}
 
 }//end IVGenerator();
 
-void subkeyGenerator(unsigned char* mainKey, keySet* keySets){
-   int i, j;
-	int shiftSize;
-	unsigned char shiftByte, firstShiftBits, secondShiftBits, thirdShiftBits, fourthShiftBits;
+/*
+	Helpful links:
+	http://page.math.tu-berlin.de/~kant/teaching/hess/krypto-ws2006/des.htm
+	https://en.wikipedia.org/wiki/Data_Encryption_Standard
+	https://en.wikipedia.org/wiki/File:DES-key-schedule.png
+	https://www.tutorialspoint.com/cryptography/data_encryption_standard.htm    
 
+*/ 
+
+void subkeyGenerator(subKey* subKeys, unsigned char* key){
+
+    int i, j, size;
+	unsigned char shift, firstBit, secondBit, thirdBit, fourthBit;
+     
 	for (i=0; i<8; i++) {
-		keySets[0].k[i] = 0;
+		subKeys[0].keyTemp[i] = 0;
 	}
-
+    //initial key permutation 
 	for (i=0; i<56; i++) {
-		shiftSize = PC1[i];
-		//changed hex 0x80 to 128
-		shiftByte = 128 >> ((shiftSize - 1)%8);
-		shiftByte &= mainKey[(shiftSize - 1)/8];
-		shiftByte <<= ((shiftSize - 1)%8);
+		size = PC1[i];
+		
+		shift = 128 >> ((size - 1)%8);
+		shift &= key[(size - 1)/8];
+		shift <<= ((size - 1)%8);
 
-		keySets[0].k[i/8] |= (shiftByte >> i%8);
+		subKeys[0].keyTemp[i/8] |= (shift >> i%8);
+	}//end initial key permutation 
+
+	//documentation goes here
+	for (i=0; i<3; i++) {
+		subKeys[0].t2[i] = subKeys[0].keyTemp[i];
 	}
+
+	subKeys[0].t2[3] = subKeys[0].keyTemp[3] & 240;
 
 	for (i=0; i<3; i++) {
-		keySets[0].c[i] = keySets[0].k[i];
+		
+		subKeys[0].t3[i] = (subKeys[0].keyTemp[i+3] & 15) << 4;
+		subKeys[0].t3[i] |= (subKeys[0].keyTemp[i+4] & 240) >> 4;
 	}
 
-	//changed hex 0xf0 to 240
-	keySets[0].c[3] = keySets[0].k[3] & 240;
+	subKeys[0].t3[3] = (subKeys[0].keyTemp[6] & 240) << 4;
+     //documentation ends here
 
-	for (i=0; i<3; i++) {
-		//changed hex 0x0f to 15
-		keySets[0].d[i] = (keySets[0].k[i+3] & 15) << 4;
-		//changed hex 0xf0 to 240
-		keySets[0].d[i] |= (keySets[0].k[i+4] & 240) >> 4;
-	}
-
-	//changed hex 0x0f to 240
-	keySets[0].d[3] = (keySets[0].k[6] & 240) << 4;
-
-	//prob 16 rounds in here 
-	for (i=1; i<17; i++) {
+	//16 create subkey loop
+	for (i=0; i<16; i++){
 		for (j=0; j<4; j++) {
-			keySets[i].c[j] = keySets[i-1].c[j];
-			keySets[i].d[j] = keySets[i-1].d[j];
+			subKeys[i].t2[j] = subKeys[i-1].t2[j];
+			subKeys[i].t3[j] = subKeys[i-1].t3[j];
 		}
-               int keyShiftSizes[] = {-1, 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1};
-		shiftSize = keyShiftSizes[i];
-		if (shiftSize == 1){
-			//changed hex 0x80 to 128
-			shiftByte = 128;
+        int sizes[17] = {0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1};
+		size = sizes[i];
+		if (size == 1){
+		
+			shift = 128;
 		} else {
-			//changed hex 0xc0 to 192
-			shiftByte = 192;
+			
+			shift = 192;
 		}
 
-		// Process C
-		firstShiftBits = shiftByte & keySets[i].c[0];
-		secondShiftBits = shiftByte & keySets[i].c[1];
-		thirdShiftBits = shiftByte & keySets[i].c[2];
-		fourthShiftBits = shiftByte & keySets[i].c[3];
+		
+		firstBit = shift & subKeys[i].t2[0];
+		secondBit = shift & subKeys[i].t2[1];
+		thirdBit = shift & subKeys[i].t2[2];
+		fourthBit = shift & subKeys[i].t2[3];
 
-		keySets[i].c[0] <<= shiftSize;
-		keySets[i].c[0] |= (secondShiftBits >> (8 - shiftSize));
+		subKeys[i].t2[0] <<= size;
+		subKeys[i].t2[0] |= (secondBit >> (8 - size));
 
-		keySets[i].c[1] <<= shiftSize;
-		keySets[i].c[1] |= (thirdShiftBits >> (8 - shiftSize));
+		subKeys[i].t2[1] <<= size;
+		subKeys[i].t2[1] |= (thirdBit >> (8 - size));
 
-		keySets[i].c[2] <<= shiftSize;
-		keySets[i].c[2] |= (fourthShiftBits >> (8 - shiftSize));
+		subKeys[i].t2[2] <<= size;
+		subKeys[i].t2[2] |= (fourthBit >> (8 - size));
 
-		keySets[i].c[3] <<= shiftSize;
-		keySets[i].c[3] |= (firstShiftBits >> (4 - shiftSize));
+		subKeys[i].t2[3] <<= size;
+		subKeys[i].t2[3] |= (firstBit >> (4 - size));
 
-		// Process D
-		firstShiftBits = shiftByte & keySets[i].d[0];
-		secondShiftBits = shiftByte & keySets[i].d[1];
-		thirdShiftBits = shiftByte & keySets[i].d[2];
-		fourthShiftBits = shiftByte & keySets[i].d[3];
+		firstBit = shift & subKeys[i].t3[0];
+		secondBit = shift & subKeys[i].t3[1];
+		thirdBit = shift & subKeys[i].t3[2];
+		fourthBit = shift & subKeys[i].t3[3];
 
-		keySets[i].d[0] <<= shiftSize;
-		keySets[i].d[0] |= (secondShiftBits >> (8 - shiftSize));
+		subKeys[i].t3[0] <<= size;
+		subKeys[i].t3[0] |= (secondBit >> (8 - size));
 
-		keySets[i].d[1] <<= shiftSize;
-		keySets[i].d[1] |= (thirdShiftBits >> (8 - shiftSize));
+		subKeys[i].t3[1] <<= size;
+		subKeys[i].t3[1] |= (thirdBit >> (8 - size));
 
-		keySets[i].d[2] <<= shiftSize;
-		keySets[i].d[2] |= (fourthShiftBits >> (8 - shiftSize));
+		subKeys[i].t3[2] <<= size;
+		subKeys[i].t3[2] |= (fourthBit >> (8 - size));
 
-		keySets[i].d[3] <<= shiftSize;
-		keySets[i].d[3] |= (firstShiftBits >> (4 - shiftSize));
-
+		subKeys[i].t3[3] <<= size;
+		subKeys[i].t3[3] |= (firstBit >> (4 - size));
+        //key permutation 
 		for (j=0; j<48; j++) {
-			shiftSize = PC2[j];
-			if (shiftSize <= 28) {
-				//changed hex 0x80 to 128
-				shiftByte = 128 >> ((shiftSize - 1)%8);
-				shiftByte &= keySets[i].c[(shiftSize - 1)/8];
-				shiftByte <<= ((shiftSize - 1)%8);
+			size = PC2[j];
+			if (size <= 28) {
+				
+				shift = 128 >> ((size - 1)%8);
+				shift &= subKeys[i].t2[(size - 1)/8];
+				shift <<= ((size - 1)%8);
 			} else {
-				//changed hex 0x80 to 128
-				shiftByte = 128 >> ((shiftSize - 29)%8);
-				shiftByte &= keySets[i].d[(shiftSize - 29)/8];
-				shiftByte <<= ((shiftSize - 29)%8);
+			
+				shift = 128 >> ((size - 29)%8);
+				shift &= subKeys[i].t3[(size - 29)/8];
+				shift <<= ((size - 29)%8);
 			}
 
-			keySets[i].k[j/8] |= (shiftByte >> j%8);
-		}
+			subKeys[i].keyTemp[j/8] |= (shift >> j%8);
+		}//end for 48 bit
 	}
-
-
-
 
 
 }//end subkeyGenerator();
 
-void desFunction(unsigned char* dataBlock, unsigned char* processedBlock, keySet* keySets, int mode){
+void desFunction(subKey* subKeys, unsigned char* block, unsigned char* desBlock, int mode){
 
-	int i, k;
-	int shiftSize;
-	unsigned char shiftByte;
+	int i, j;
+	int size, keyIndex;
+	unsigned char leftSplit[4], rightSplit[4], expansionTemp[6], sBoxTemp[4], leftTemp[4], rightTemp[4];
+	unsigned char row, column, shift;
+	unsigned char endPermTemp[8], initPermTemp[8];
 
-	unsigned char initialPermutation[8];
-	memset(initialPermutation, 0, 8);
-	memset(processedBlock, 0, 8);
-
+	memset(initPermTemp, 0, 8);
+	memset(desBlock, 0, 8);
+    //initial permutation loop
 	for (i=0; i<64; i++) {
-		shiftSize = IP[i];
-		//changed hex 0x80 to 128
-		shiftByte = 128 >> ((shiftSize - 1)%8);
-		shiftByte &= dataBlock[(shiftSize - 1)/8];
-		shiftByte <<= ((shiftSize - 1)%8);
+		size = IP[i];
+		
+		shift = 128 >> ((size - 1)%8);
+		shift &= block[(size - 1)/8];
+		shift <<= ((size - 1)%8);
 
-		initialPermutation[i/8] |= (shiftByte >> i%8);
-	}
+		initPermTemp[i/8] |= (shift >> i%8);
+	}//end init perm loop
 
-	unsigned char l[4], r[4];
+    //left/right hand init perm
 	for (i=0; i<4; i++) {
-		l[i] = initialPermutation[i];
-		r[i] = initialPermutation[i+4];
+		leftTemp[i] = initPermTemp[i];
+		rightTemp[i] = initPermTemp[i+4];
 	}
+     //des 16 round function
+	for (j=1; j<=16; j++) {
 
-	unsigned char ln[4], rn[4], er[6], ser[4];
-
-	int keyIndex;
-	for (k=1; k<=16; k++) {
-		memcpy(ln, r, 4);
-
-		memset(er, 0, 6);
-
-		for (i=0; i<48; i++) {
-			shiftSize = E[i];
-			//changed hex 0x80 to 128
-			shiftByte = 128 >> ((shiftSize - 1)%8);
-			shiftByte &= r[(shiftSize - 1)/8];
-			shiftByte <<= ((shiftSize - 1)%8);
-
-			er[i/8] |= (shiftByte >> i%8);
-		}
-                 //decryption is 0
+		memcpy(leftSplit, rightTemp, 4);
+		memset(expansionTemp, 0, 6);
+        
+        //decryption is 0
 		if (mode == 0) {
-			keyIndex = 17 - k;
+			keyIndex = 17 - j;//reverses process for decryption
 		} else {
-			keyIndex = k;
+			keyIndex = j;
 		}
 
+		//expansion box perm
+		for (i=0; i<48; i++) {
+			size = E[i];
+			
+			shift = 128 >> ((size - 1)%8);
+			shift &= rightTemp[(size - 1)/8];
+			shift <<= ((size - 1)%8);
+
+			expansionTemp[i/8] |= (shift >> i%8);
+		}//end expansion box perm
+
+         //xor and equal key 
 		for (i=0; i<6; i++) {
-			er[i] ^= keySets[keyIndex].k[i];
+			expansionTemp[i] ^= subKeys[keyIndex].keyTemp[i];
 		}
+        
+        memset(sBoxTemp, 0, 4);
+		
+       /*
+		Sbox xor permutation begin needs more documentation
+       */
 
-		unsigned char row, column;
-
-		for (i=0; i<4; i++) {
-			ser[i] = 0;
-		}
-
-
-		// Byte 1
-		row = 0;
-		//changed hex 0x80 to 128
-		row |= ((er[0] & 128) >> 6);
-		//changed hex 0x04
-		row |= ((er[0] & 4) >> 2);
-
-		column = 0;
-		//changed hex 0x78 to 120
-		column |= ((er[0] & 120) >> 3);
-
-		ser[0] |= ((unsigned char)S1[row*16+column] << 4);
+        //S1 box
 
 		row = 0;
-		//changed hex 0x02 to 2
-		row |= (er[0] & 2);
-		//changed hex 0x10 to 16
-		row |= ((er[1] & 16) >> 4);
+		
+		row |= ((expansionTemp[0] & 128) >> 6);
+		
+		row |= ((expansionTemp[0] & 4) >> 2);
 
 		column = 0;
-		//changed hex 0x01 to 1
-		column |= ((er[0] & 1) << 3);
-		//changed hex 0xe0 to 224
-		column |= ((er[1] & 224) >> 5);
+		
+		column |= ((expansionTemp[0] & 120) >> 3);
 
-		ser[0] |= (unsigned char)S2[row*16+column];
+      	sBoxTemp[0] |= ((unsigned char)S1[row*16+column] << 4);
 
-		// Byte 2
+        //S2 box
+     
 		row = 0;
-		//changed hex 0x08 to 8
-		row |= ((er[1] & 8) >> 2);
-		//changed hex 0x40 to 64
-		row |= ((er[2] & 64) >> 6);
+		
+		row |= (expansionTemp[0] & 2);
+		
+		row |= ((expansionTemp[1] & 16) >> 4);
 
 		column = 0;
-		//changed hex 0x07 to 7
-		column |= ((er[1] & 7) << 1);
-		//changed hex 0x80 to 128
-		column |= ((er[2] & 128) >> 7);
+		
+		column |= ((expansionTemp[0] & 1) << 3);
+		
+		column |= ((expansionTemp[1] & 224) >> 5);
 
-		ser[1] |= ((unsigned char)S3[row*16+column] << 4);
+		sBoxTemp[0] |= (unsigned char)S2[row*16+column];
 
+		//S3 box
+ 
 		row = 0;
-		//changed hex 0x20 to
-		row |= ((er[2] & 32) >> 4);
-		//changed hex 0x01 to 1
-		row |= (er[2] & 1);
+		
+		row |= ((expansionTemp[1] & 8) >> 2);
+		
+		row |= ((expansionTemp[2] & 64) >> 6);
 
 		column = 0;
-		//changed hex 0x1e to 30
-		column |= ((er[2] & 30) >> 1);
+		
+		column |= ((expansionTemp[1] & 7) << 1);
+		
+		column |= ((expansionTemp[2] & 128) >> 7);
 
-		ser[1] |= (unsigned char)S4[row*16+column];
+		sBoxTemp[1] |= ((unsigned char)S3[row*16+column] << 4);
 
-		// Byte 3
-		row = 0;
-		//changed hex 0x80 to 128
-		row |= ((er[3] & 128) >> 6);
-		//changed hex 0x04 to 4
-		row |= ((er[3] & 4) >> 2);
-
-		column = 0;
-		//changed hex 0x78 to 120
-		column |= ((er[3] & 120) >> 3);
-
-		ser[2] |= ((unsigned char)S5[row*16+column] << 4);
+		//S4 box
 
 		row = 0;
-		//changed hex 0x02 to 2
-		row |= (er[3] & 2);
-		//changed hex 0x10 to 16
-		row |= ((er[4] & 16) >> 4);
+	
+		row |= ((expansionTemp[2] & 32) >> 4);
+		
+		row |= (expansionTemp[2] & 1);
 
 		column = 0;
-		//changed hex 0x01 to 1
-		column |= ((er[3] & 1) << 3);
-		//changed hex 0xe0 to 224
-		column |= ((er[4] & 224) >> 5);
+		
+		column |= ((expansionTemp[2] & 30) >> 1);
 
-		ser[2] |= (unsigned char)S6[row*16+column];
+		sBoxTemp[1] |= (unsigned char)S4[row*16+column];
 
-		// Byte 4
+		//S5 box
+    
 		row = 0;
-		//changed hex 0x08 to 8
-		row |= ((er[4] & 8) >> 2);
-		//changed hex 0x40 to 64
-		row |= ((er[5] & 64) >> 6);
+		
+		row |= ((expansionTemp[3] & 128) >> 6);
+		
+		row |= ((expansionTemp[3] & 4) >> 2);
 
 		column = 0;
-		//changed hex 0x07 to 7
-		column |= ((er[4] & 7) << 1);
-		//changed hex 0x80 to 128
-		column |= ((er[5] & 128) >> 7);
+		
+		column |= ((expansionTemp[3] & 120) >> 3);
 
-		ser[3] |= ((unsigned char)S7[row*16+column] << 4);
+		sBoxTemp[2] |= ((unsigned char)S5[row*16+column] << 4);
+
+		//S6
 
 		row = 0;
-		//changed hex 0x20 to 32
-		row |= ((er[5] & 32) >> 4);
-		//changed hex 0x01 to 1
-		row |= (er[5] & 1);
+		
+		row |= (expansionTemp[3] & 2);
+		
+		row |= ((expansionTemp[4] & 16) >> 4);
 
 		column = 0;
-		//changed hex 0x1e to 30
-		column |= ((er[5] & 30) >> 1);
+		
+		column |= ((expansionTemp[3] & 1) << 3);
+		
+		column |= ((expansionTemp[4] & 224) >> 5);
 
-		ser[3] |= (unsigned char)S8[row*16+column];
+		sBoxTemp[2] |= (unsigned char)S6[row*16+column];
 
-		for (i=0; i<4; i++) {
-			rn[i] = 0;
-		}
+		//S7
+
+		row = 0;
+		
+		row |= ((expansionTemp[4] & 8) >> 2);
+		
+		row |= ((expansionTemp[5] & 64) >> 6);
+
+		column = 0;
+		
+		column |= ((expansionTemp[4] & 7) << 1);
+		
+		column |= ((expansionTemp[5] & 128) >> 7);
+
+		sBoxTemp[3] |= ((unsigned char)S7[row*16+column] << 4);
+
+		//S8
+
+		row = 0;
+		
+		row |= ((expansionTemp[5] & 32) >> 4);
+		
+		row |= (expansionTemp[5] & 1);
+
+		column = 0;
+		
+		column |= ((expansionTemp[5] & 30) >> 1);
+
+		sBoxTemp[3] |= (unsigned char)S8[row*16+column];
+
+		/*
+		   end Sbox xor permutation 
+        */
+
+        memset(rightSplit, 0, 4);
 
 		for (i=0; i<32; i++) {
-			shiftSize = HP[i];
-			//changed hex 0x80 to 128
-			shiftByte = 128 >> ((shiftSize - 1)%8);
-			shiftByte &= ser[(shiftSize - 1)/8];
-			shiftByte <<= ((shiftSize - 1)%8);
+			size = HP[i];
+			
+			shift = 128 >> ((size - 1)%8);
+			shift &= sBoxTemp[(size - 1)/8];
+			shift <<= ((size - 1)%8);
 
-			rn[i/8] |= (shiftByte >> i%8);
+			rightSplit[i/8] |= (shift >> i%8);
 		}
 
 		for (i=0; i<4; i++) {
-			rn[i] ^= l[i];
+			rightSplit[i] ^= leftTemp[i];
 		}
 
 		for (i=0; i<4; i++) {
-			l[i] = ln[i];
-			r[i] = rn[i];
+			leftTemp[i] = leftSplit[i];
+			rightTemp[i] = rightSplit[i];
 		}
-	}
-
-	unsigned char preEndPermutation[8];
+	}//end des rounds 
+     
+    //left/right hand  final perm
 	for (i=0; i<4; i++) {
-		preEndPermutation[i] = r[i];
-		preEndPermutation[4+i] = l[i];
+		endPermTemp[i] = rightTemp[i];
+		endPermTemp[i+4] = leftTemp[i];
 	}
 
+    //final permutation 
 	for (i=0; i<64; i++) {
-		shiftSize = FP[i];
-		//changed hex 0x80 to 128
-		shiftByte = 128 >> ((shiftSize - 1)%8);
-		shiftByte &= preEndPermutation[(shiftSize - 1)/8];
-		shiftByte <<= ((shiftSize - 1)%8);
+		size = FP[i];
+		
+		shift = 128 >> ((size - 1)%8);
+		shift &= endPermTemp[(size - 1)/8];
+		shift <<= ((size - 1)%8);
 
-		processedBlock[i/8] |= (shiftByte >> i%8);
+		desBlock[i/8] |= (shift >> i%8);
 	}
-
 
 }//end desFunction();
 
