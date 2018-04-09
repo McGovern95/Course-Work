@@ -212,8 +212,7 @@ void subkeyGenerator(subKey* subKeys, unsigned char* key){
 			
 			shift = 192;
 		}
-
-		
+        //subkey generation 
 		firstBit = shift & subKeys[i].t2[0];
 		secondBit = shift & subKeys[i].t2[1];
 		thirdBit = shift & subKeys[i].t2[2];

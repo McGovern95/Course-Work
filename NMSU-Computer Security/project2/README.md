@@ -1,6 +1,10 @@
+	#DES-CBC Encryption/Decryption program
+
+
+
 Included files: 
 
-SRC: part2.cpp desfunct.cpp desfunct.h makefile
+SRC: project2.cpp desfunct.cpp desfunct.h makefile
 
 	instructions on using this program:
 

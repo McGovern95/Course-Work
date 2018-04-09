@@ -88,14 +88,13 @@ int main(){
 	*/
 	subkeyGenerator(subKeys, desKey);
 
-
      char choice2;
      printf("did you want to Encrypt or Decrypt? (e/d)\n");
      cin >> choice2; 
-      if(choice2 != 'e' && choice2 !='d'){
+     if(choice2 != 'e' && choice2 !='d'){
     	 printf("please enter an 'e' or 'd' \n");
           return 1;
-   	  }
+   	 }
 
 /*
 
