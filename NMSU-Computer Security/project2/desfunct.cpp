@@ -144,13 +144,14 @@ char S8[64] = {
 
 char* SBOXMAP[] = {S1, S2, S3, S4, S5, S6, S7, S8};
 
-//255 for unsigned 0-255 random characters 
+//256 for unsigned 0-256 random characters 
 void generator(unsigned char* key, unsigned char* iv) {
 	
 	for (int i=0; i<8; i++){ 
-		key[i] = rand()%255;
-		iv[i] = rand()%255;
+		key[i] = rand()%256;
+		iv[i] = rand()%256;
 	}
+	
 }//end generator();
 
 /*
@@ -170,101 +171,103 @@ void subkeyGenerator(subKey* subKeys, unsigned char* key){
 	for (i=0; i<8; i++) {
 		subKeys[0].keyTemp[i] = 0;
 	}
+	
     //initial key permutation 
 	for (i=0; i<56; i++) {
+	
+	   	//size must be subtracted because PC1 and PC2 are not index based, 
+	    //assuming bits from 1-64 instead of 0 -63
 		size = PC1[i];
 		
 		shift = 128 >> ((size - 1)%8);
-		shift &= key[(size - 1)/8];
-		shift <<= ((size - 1)%8);
+		shift = shift & key[(size-1)/8];
+		shift = shift << ((size-1)%8);
 
-		subKeys[0].keyTemp[i/8] |= (shift >> i%8);
+		subKeys[0].keyTemp[i/8] = subKeys[0].keyTemp[i/8] | (shift >> i%8);
+		
 	}//end initial key permutation 
 
-	//documentation goes here
 	for (i=0; i<3; i++) {
 		subKeys[0].t2[i] = subKeys[0].keyTemp[i];
+		subKeys[0].t3[i] = (subKeys[0].keyTemp[i+3] & 15) << 4;
+		subKeys[0].t3[i] = subKeys[0].t3[i] | (subKeys[0].keyTemp[i+4] & 240) >> 4;
 	}
 
 	subKeys[0].t2[3] = subKeys[0].keyTemp[3] & 240;
-
-	for (i=0; i<3; i++) {
-		
-		subKeys[0].t3[i] = (subKeys[0].keyTemp[i+3] & 15) << 4;
-		subKeys[0].t3[i] |= (subKeys[0].keyTemp[i+4] & 240) >> 4;
-	}
-
 	subKeys[0].t3[3] = (subKeys[0].keyTemp[6] & 240) << 4;
-     //documentation ends here
 
 	//16 create subkey loop
 	for (i=0; i<16; i++){
+	
 		for (j=0; j<4; j++) {
 			subKeys[i].t2[j] = subKeys[i-1].t2[j];
 			subKeys[i].t3[j] = subKeys[i-1].t3[j];
 		}
+		
         int sizes[17] = {0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1};
 		size = sizes[i];
-		if (size == 1){
 		
+		if (size == 1)
 			shift = 128;
-		} else {
-			
+		else
 			shift = 192;
-		}
+		
         //subkey generation 
 		firstBit = shift & subKeys[i].t2[0];
 		secondBit = shift & subKeys[i].t2[1];
 		thirdBit = shift & subKeys[i].t2[2];
 		fourthBit = shift & subKeys[i].t2[3];
 
-		subKeys[i].t2[0] <<= size;
-		subKeys[i].t2[0] |= (secondBit >> (8 - size));
+		
+		subKeys[i].t2[0] = subKeys[i].t2[0] << size; 
+		subKeys[i].t2[0] = subKeys[i].t2[0] | firstBit >> (8-size);
 
-		subKeys[i].t2[1] <<= size;
-		subKeys[i].t2[1] |= (thirdBit >> (8 - size));
+		subKeys[i].t2[1] = subKeys[i].t2[1] << size; 
+		subKeys[i].t2[1] = subKeys[i].t2[1] | secondBit >> (8-size); 
 
-		subKeys[i].t2[2] <<= size;
-		subKeys[i].t2[2] |= (fourthBit >> (8 - size));
-
-		subKeys[i].t2[3] <<= size;
-		subKeys[i].t2[3] |= (firstBit >> (4 - size));
+		subKeys[i].t2[2] = subKeys[i].t2[2] << size; 
+        subKeys[i].t2[2] = subKeys[i].t2[2] | thirdBit >> (8-size); 
+		
+		subKeys[i].t2[3] = subKeys[i].t2[3] << size; 
+		subKeys[i].t2[3] = subKeys[i].t2[3] | fourthBit >> (8-size); 
 
 		firstBit = shift & subKeys[i].t3[0];
 		secondBit = shift & subKeys[i].t3[1];
 		thirdBit = shift & subKeys[i].t3[2];
 		fourthBit = shift & subKeys[i].t3[3];
+	
+		subKeys[i].t2[0] = subKeys[i].t2[0] << size; 	
+        subKeys[i].t2[0] = subKeys[i].t2[0] | firstBit >> (8-size);
+		
+		subKeys[i].t2[1] = subKeys[i].t2[1] << size; 
+        subKeys[i].t2[1] = subKeys[i].t2[1] | secondBit >> (8-size);
+	
+		subKeys[i].t2[2] = subKeys[i].t2[2] << size;
+        subKeys[i].t2[2] = subKeys[i].t2[2] | thirdBit >> (8-size);
+	
+		subKeys[i].t2[3] = subKeys[i].t2[3] << size;	
+		subKeys[i].t2[3] = subKeys[i].t2[3] | fourthBit >> (8-size); 
 
-		subKeys[i].t3[0] <<= size;
-		subKeys[i].t3[0] |= (secondBit >> (8 - size));
-
-		subKeys[i].t3[1] <<= size;
-		subKeys[i].t3[1] |= (thirdBit >> (8 - size));
-
-		subKeys[i].t3[2] <<= size;
-		subKeys[i].t3[2] |= (fourthBit >> (8 - size));
-
-		subKeys[i].t3[3] <<= size;
-		subKeys[i].t3[3] |= (firstBit >> (4 - size));
         //key permutation 
 		for (j=0; j<48; j++) {
+		
 			size = PC2[j];
 			if (size <= 28) {
 				
-				shift = 128 >> ((size - 1)%8);
-				shift &= subKeys[i].t2[(size - 1)/8];
-				shift <<= ((size - 1)%8);
+				shift = 128 >> ((size-1)%8);
+				shift = shift & subKeys[i].t2[(size-1)/8];
+				shift = shift << ((size-1)%8);
 			} else {
 			
-				shift = 128 >> ((size - 29)%8);
-				shift &= subKeys[i].t3[(size - 29)/8];
-				shift <<= ((size - 29)%8);
+				shift = 128 >> ((size-29)%8);
+				shift = shift & subKeys[i].t3[(size-29)/8];
+				shift = shift << ((size-29)%8);
 			}
 
-			subKeys[i].keyTemp[j/8] |= (shift >> j%8);
+			subKeys[i].keyTemp[j/8] = subKeys[i].keyTemp[j/8] | (shift >> j%8);
+			
 		}//end for 48 bit
 	}
-
 
 }//end subkeyGenerator();
 
@@ -278,15 +281,19 @@ void desFunction(subKey* subKeys, unsigned char* block, unsigned char* desBlock,
 
 	memset(initPermTemp, 0, 8);
 	memset(desBlock, 0, 8);
+
+	//size must be subtracted because sBoxes are not index based, 
+	//assuming bits from 1-64 instead of 0 -63
+
     //initial permutation loop
 	for (i=0; i<64; i++) {
 		size = IP[i];
 		
-		shift = 128 >> ((size - 1)%8);
-		shift &= block[(size - 1)/8];
-		shift <<= ((size - 1)%8);
+		shift = 128 >> ((size-1)%8);
+		shift = shift & block[(size-1)/8];
+		shift = shift << ((size-1)%8);
 
-		initPermTemp[i/8] |= (shift >> i%8);
+		initPermTemp[i/8] = initPermTemp[i/8] | (shift >> i%8);
 	}//end init perm loop
 
     //left/right hand init perm
@@ -294,7 +301,8 @@ void desFunction(subKey* subKeys, unsigned char* block, unsigned char* desBlock,
 		leftTemp[i] = initPermTemp[i];
 		rightTemp[i] = initPermTemp[i+4];
 	}
-     //des 16 round function
+	
+    //des 16 round function
 	for (j=1; j<=16; j++) {
 
 		memcpy(leftSplit, rightTemp, 4);
@@ -311,16 +319,16 @@ void desFunction(subKey* subKeys, unsigned char* block, unsigned char* desBlock,
 		for (i=0; i<48; i++) {
 			size = E[i];
 			
-			shift = 128 >> ((size - 1)%8);
-			shift &= rightTemp[(size - 1)/8];
-			shift <<= ((size - 1)%8);
+			shift = 128 >> ((size-1)%8);
+			shift = shift & rightTemp[(size-1)/8];
+			shift = shift << ((size-1)%8);
 
-			expansionTemp[i/8] |= (shift >> i%8);
+			expansionTemp[i/8] = expansionTemp[i/8] | (shift >> i%8);
 		}//end expansion box perm
 
-         //xor and equal key 
+        //xor and equal key 
 		for (i=0; i<6; i++) {
-			expansionTemp[i] ^= subKeys[keyIndex].keyTemp[i];
+			expansionTemp[i] = expansionTemp[i] ^ subKeys[keyIndex].keyTemp[i];
 		}
         
         memset(sBoxTemp, 0, 4);
@@ -333,146 +341,148 @@ void desFunction(subKey* subKeys, unsigned char* block, unsigned char* desBlock,
 
 		row = 0;
 		
-		row |= ((expansionTemp[0] & 128) >> 6);
+		row = row | ((expansionTemp[0] & 128) >> 6);
 		
-		row |= ((expansionTemp[0] & 4) >> 2);
+		row = row | ((expansionTemp[0] & 4) >> 2);
 
 		column = 0;
 		
-		column |= ((expansionTemp[0] & 120) >> 3);
+		column = column | ((expansionTemp[0] & 120) >> 3);
 
-      	sBoxTemp[0] |= ((unsigned char)S1[row*16+column] << 4);
+      	sBoxTemp[0] = sBoxTemp[0] | ((unsigned char)S1[row*16+column] << 4);
 
         //S2 box
      
 		row = 0;
 		
-		row |= (expansionTemp[0] & 2);
+		row = row | (expansionTemp[0] & 2);
 		
-		row |= ((expansionTemp[1] & 16) >> 4);
+		row = row | ((expansionTemp[1] & 16) >> 4);
 
 		column = 0;
 		
-		column |= ((expansionTemp[0] & 1) << 3);
+		column = column | ((expansionTemp[0] & 1) << 3);
 		
-		column |= ((expansionTemp[1] & 224) >> 5);
+		column = column | ((expansionTemp[1] & 224) >> 5);
 
-		sBoxTemp[0] |= (unsigned char)S2[row*16+column];
+		sBoxTemp[0] = sBoxTemp[0] | (unsigned char)S2[row*16+column];
 
 		//S3 box
  
 		row = 0;
 		
-		row |= ((expansionTemp[1] & 8) >> 2);
+		row = row | ((expansionTemp[1] & 8) >> 2);
 		
-		row |= ((expansionTemp[2] & 64) >> 6);
+		row = row | ((expansionTemp[2] & 64) >> 6);
 
 		column = 0;
 		
-		column |= ((expansionTemp[1] & 7) << 1);
+		column = column | ((expansionTemp[1] & 7) << 1);
 		
-		column |= ((expansionTemp[2] & 128) >> 7);
+		column = column | ((expansionTemp[2] & 128) >> 7);
 
-		sBoxTemp[1] |= ((unsigned char)S3[row*16+column] << 4);
+		sBoxTemp[1] = sBoxTemp[1] | ((unsigned char)S3[row*16+column] << 4);
 
 		//S4 box
 
 		row = 0;
 	
-		row |= ((expansionTemp[2] & 32) >> 4);
+		row = row | ((expansionTemp[2] & 32) >> 4);
 		
-		row |= (expansionTemp[2] & 1);
+		row = row | (expansionTemp[2] & 1);
 
 		column = 0;
 		
-		column |= ((expansionTemp[2] & 30) >> 1);
+		column = column | ((expansionTemp[2] & 30) >> 1);
 
-		sBoxTemp[1] |= (unsigned char)S4[row*16+column];
+		sBoxTemp[1] = sBoxTemp[1] | (unsigned char)S4[row*16+column];
 
 		//S5 box
     
 		row = 0;
 		
-		row |= ((expansionTemp[3] & 128) >> 6);
+		row = row | ((expansionTemp[3] & 128) >> 6); 
 		
-		row |= ((expansionTemp[3] & 4) >> 2);
+		row = row | ((expansionTemp[3] & 4) >> 2);
 
 		column = 0;
 		
-		column |= ((expansionTemp[3] & 120) >> 3);
+		column = column | ((expansionTemp[3] & 120) >> 3);
 
-		sBoxTemp[2] |= ((unsigned char)S5[row*16+column] << 4);
+		sBoxTemp[2] = sBoxTemp[2] | ((unsigned char)S5[row*16+column] << 4);
 
 		//S6
 
 		row = 0;
 		
-		row |= (expansionTemp[3] & 2);
+		row = row | (expansionTemp[3] & 2);
 		
-		row |= ((expansionTemp[4] & 16) >> 4);
+		row = row | ((expansionTemp[4] & 16) >> 4);
 
 		column = 0;
 		
-		column |= ((expansionTemp[3] & 1) << 3);
+		column = column | ((expansionTemp[3] & 1) << 3);
 		
-		column |= ((expansionTemp[4] & 224) >> 5);
+		column = column | ((expansionTemp[4] & 224) >> 5);
 
-		sBoxTemp[2] |= (unsigned char)S6[row*16+column];
+		sBoxTemp[2] = sBoxTemp[2] | (unsigned char)S6[row*16+column];
 
 		//S7
 
 		row = 0;
+	
+		row = row | ((expansionTemp[4] & 8) >> 2);
 		
-		row |= ((expansionTemp[4] & 8) >> 2);
-		
-		row |= ((expansionTemp[5] & 64) >> 6);
+		row = row | ((expansionTemp[5] & 64) >> 6);
 
 		column = 0;
 		
-		column |= ((expansionTemp[4] & 7) << 1);
+		column = column | ((expansionTemp[4] & 7) << 1);
 		
-		column |= ((expansionTemp[5] & 128) >> 7);
+		column = column | ((expansionTemp[5] & 128) >> 7);
 
-		sBoxTemp[3] |= ((unsigned char)S7[row*16+column] << 4);
+		sBoxTemp[3] = sBoxTemp[3] | ((unsigned char)S7[row*16+column] << 4);
 
 		//S8
 
 		row = 0;
 		
-		row |= ((expansionTemp[5] & 32) >> 4);
-		
-		row |= (expansionTemp[5] & 1);
+		row = row | ((expansionTemp[5] & 32) >> 4);
+
+		row = row | (expansionTemp[5] & 1);
 
 		column = 0;
 		
-		column |= ((expansionTemp[5] & 30) >> 1);
+		column = column | ((expansionTemp[5] & 30) >> 1);
 
-		sBoxTemp[3] |= (unsigned char)S8[row*16+column];
+		sBoxTemp[3] = sBoxTemp[3] | (unsigned char)S8[row*16+column];
 
 		/*
 		   end Sbox xor permutation 
         */
 
         memset(rightSplit, 0, 4);
-
+        //half perm rounds
 		for (i=0; i<32; i++) {
+		
 			size = HP[i];
 			
-			shift = 128 >> ((size - 1)%8);
-			shift &= sBoxTemp[(size - 1)/8];
-			shift <<= ((size - 1)%8);
+			shift = 128 >> ((size-1)%8);
+			shift = shift & sBoxTemp[(size-1)/8];
+			shift = shift << ((size-1)%8);
 
-			rightSplit[i/8] |= (shift >> i%8);
+			rightSplit[i/8] = rightSplit[i/8] | (shift >> i%8);
 		}
 
 		for (i=0; i<4; i++) {
-			rightSplit[i] ^= leftTemp[i];
+			rightSplit[i] = rightSplit[i] ^ leftTemp[i];
 		}
 
 		for (i=0; i<4; i++) {
 			leftTemp[i] = leftSplit[i];
 			rightTemp[i] = rightSplit[i];
 		}
+		
 	}//end des rounds 
      
     //left/right hand  final perm
@@ -485,13 +495,12 @@ void desFunction(subKey* subKeys, unsigned char* block, unsigned char* desBlock,
 	for (i=0; i<64; i++) {
 		size = FP[i];
 		
-		shift = 128 >> ((size - 1)%8);
-		shift &= endPermTemp[(size - 1)/8];
-		shift <<= ((size - 1)%8);
+		shift = 128 >> ((size-1)%8);
+		shift = shift & endPermTemp[(size - 1)/8];
+		shift = shift << ((size-1)%8);
 
-		desBlock[i/8] |= (shift >> i%8);
+		desBlock[i/8] = desBlock[i/8] | (shift >> i%8);
 	}
 
+
 }//end desFunction();
-
-
