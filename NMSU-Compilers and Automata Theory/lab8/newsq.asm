@@ -18,12 +18,12 @@ main:
         mov rsp, r8
         
         ;get input
-        PRINT_STRING _L0		;print a string
+       PRINT_STRING _L0    ;print a string
 	NEWLINE		;standard Write a NEWLINE
 	mov rax, 16		;get Identifier offset
 	add rax, rsp		; Add the SP to have direct reference to memory 
 	GET_DEC 8, [rax]		; READ in an integer
-        PRINT_STRING _L1		;print a string
+       PRINT_STRING _L1		;print a string
 	NEWLINE		;standard Write a NEWLINE
 	mov rax, 16		;get Identifier offset
 	add rax, rsp		; Add the SP to have direct reference to memory 
@@ -31,7 +31,7 @@ main:
 	PRINT_DEC 8, rsi 		;standard Write a value 
 	NEWLINE		;standard Write a NEWLINE
         ;variable declearations
-        mov rdx, 1		;ASSIGN a number 
+       mov rdx, 1		;ASSIGN a number 
 	mov [rsp + 32], rdx 		; STORE RHS of ASSIGN temporarily
 	mov rax, 24		;get Identifier offset
 	add rax, rsp		; Add the SP to have direct reference to memory 
@@ -44,16 +44,14 @@ main:
 	mov  rdx, [rsp+40] 		; FETCH RHS of ASSIGN temporarily
 	mov [rax], rdx		; ASSIGN final store  
             ;sum of sq function
-_L3:    
-       
-    	                     ; WHILE TOP target
+_L3:   ; WHILE TOP target
 	mov rax, 24		;get Identifier offset
 	add rax, rsp		; Add the SP to have direct reference to memory 
 	mov rax, [rax]		;LHS expression is identifier
 	mov [rsp+48], rax		;store LHS of expression in memory
 	mov rbx, 100		; RHS expresion a number
 	mov rax, [rsp+48]		;fetch LHS of expression from memory
-	cmp rax, rsi		;EXPR Lessthan put rsi from input
+	cmp rax, rsi		;EXPR Lessthan put rsi from input!!!!!!!!!
 	setle al		;EXPR Lessthan
 	mov rbx, 1		;set rbx to one to filter rax
 	and rax, rbx		;filter RAX
@@ -101,9 +99,8 @@ _L3:
 	mov [rax], rdx		; ASSIGN final store 
 	JMP _L3		;WHILE Jump back
 
-_L4:
-        ;print out result function
-        PRINT_STRING _L2		;print a string
+_L4:   ;print out result function
+       PRINT_STRING _L2		;print a string
 	NEWLINE		;standard Write a NEWLINE
 	mov rax, 16		;get Identifier offset
 	add rax, rsp		; Add the SP to have direct reference to memory 
