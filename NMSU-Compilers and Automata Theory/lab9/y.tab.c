@@ -63,7 +63,7 @@
 
 /* Copy the first part of user declarations.  */
 /* Line 371 of yacc.c  */
-#line 11 "lab9ast.y"
+#line 9 "lab9ast.y"
 	/* begin specs */
 
 #include <stdio.h>
@@ -176,7 +176,7 @@ extern int yydebug;
 typedef union YYSTYPE
 {
 /* Line 387 of yacc.c  */
-#line 45 "lab9ast.y"
+#line 43 "lab9ast.y"
 
 	int value;
 	char * string;
@@ -528,14 +528,14 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    70,    70,    73,    74,    78,    78,    81,    96,   112,
-     113,   117,   127,   116,   146,   147,   150,   151,   155,   169,
-     184,   184,   197,   198,   202,   203,   209,   210,   211,   212,
-     213,   214,   215,   216,   219,   222,   230,   242,   247,   253,
-     258,   260,   264,   268,   270,   277,   280,   296,   314,   316,
-     331,   332,   333,   334,   335,   336,   339,   341,   358,   358,
-     361,   363,   378,   378,   381,   382,   385,   386,   389,   416,
-     416,   419,   426
+       0,    68,    68,    71,    72,    76,    76,    79,    94,   110,
+     111,   115,   125,   114,   144,   145,   148,   149,   153,   167,
+     182,   182,   195,   196,   200,   201,   207,   208,   209,   210,
+     211,   212,   213,   214,   217,   220,   228,   240,   245,   251,
+     256,   258,   262,   266,   268,   275,   278,   294,   312,   314,
+     329,   330,   331,   332,   333,   334,   337,   339,   356,   356,
+     359,   361,   376,   376,   379,   380,   383,   384,   387,   414,
+     414,   417,   424
 };
 #endif
 
@@ -1510,38 +1510,38 @@ yyreduce:
     {
         case 2:
 /* Line 1792 of yacc.c  */
-#line 71 "lab9ast.y"
+#line 69 "lab9ast.y"
     {program=(yyvsp[(1) - (1)].node);}
     break;
 
   case 3:
 /* Line 1792 of yacc.c  */
-#line 73 "lab9ast.y"
+#line 71 "lab9ast.y"
     {(yyval.node) = (yyvsp[(1) - (1)].node);}
     break;
 
   case 4:
 /* Line 1792 of yacc.c  */
-#line 74 "lab9ast.y"
+#line 72 "lab9ast.y"
     {(yyval.node) = (yyvsp[(1) - (2)].node);
 			    (yyvsp[(1) - (2)].node)->next=(yyvsp[(2) - (2)].node);}
     break;
 
   case 5:
 /* Line 1792 of yacc.c  */
-#line 78 "lab9ast.y"
+#line 76 "lab9ast.y"
     {(yyval.node)=(yyvsp[(1) - (1)].node);}
     break;
 
   case 6:
 /* Line 1792 of yacc.c  */
-#line 78 "lab9ast.y"
+#line 76 "lab9ast.y"
     {(yyval.node)=(yyvsp[(1) - (1)].node);}
     break;
 
   case 7:
 /* Line 1792 of yacc.c  */
-#line 81 "lab9ast.y"
+#line 79 "lab9ast.y"
     { //struct SymbTab *p;
 			  if(!Search((yyvsp[(2) - (3)].string),level,0)){
 			  (yyval.node)=ASTCreateNode(VARDEC);
@@ -1561,7 +1561,7 @@ yyreduce:
 
   case 8:
 /* Line 1792 of yacc.c  */
-#line 96 "lab9ast.y"
+#line 94 "lab9ast.y"
     {struct SymbTab *p;
 					       if(!Search((yyvsp[(2) - (6)].string),level,0)){
 					       (yyval.node)=ASTCreateNode(VARDEC); 
@@ -1580,19 +1580,19 @@ yyreduce:
 
   case 9:
 /* Line 1792 of yacc.c  */
-#line 112 "lab9ast.y"
+#line 110 "lab9ast.y"
     {(yyval.operator) = INTDEC;}
     break;
 
   case 10:
 /* Line 1792 of yacc.c  */
-#line 113 "lab9ast.y"
+#line 111 "lab9ast.y"
     {(yyval.operator) = VOIDDEC;}
     break;
 
   case 11:
 /* Line 1792 of yacc.c  */
-#line 117 "lab9ast.y"
+#line 115 "lab9ast.y"
     {if(!Search((yyvsp[(2) - (3)].string),level,0)){
 			  Insert((yyvsp[(2) - (3)].string),(yyvsp[(1) - (3)].operator),1,level,0,0,NULL);
 			  goffset=offset;
@@ -1607,7 +1607,7 @@ yyreduce:
 
   case 12:
 /* Line 1792 of yacc.c  */
-#line 127 "lab9ast.y"
+#line 125 "lab9ast.y"
     {
 			(Search((yyvsp[(2) - (5)].string),0,0))->fparms = (yyvsp[(5) - (5)].node);
 		 }
@@ -1615,7 +1615,7 @@ yyreduce:
 
   case 13:
 /* Line 1792 of yacc.c  */
-#line 132 "lab9ast.y"
+#line 130 "lab9ast.y"
     {(yyval.node)=ASTCreateNode(FUNCTDEC); 
 				     (yyval.node)->operator =(yyvsp[(1) - (8)].operator);
                                      (yyval.node)->name=(yyvsp[(2) - (8)].string);
@@ -1632,32 +1632,32 @@ yyreduce:
 
   case 14:
 /* Line 1792 of yacc.c  */
-#line 146 "lab9ast.y"
+#line 144 "lab9ast.y"
     {(yyval.node) = NULL;}
     break;
 
   case 15:
 /* Line 1792 of yacc.c  */
-#line 147 "lab9ast.y"
+#line 145 "lab9ast.y"
     {(yyval.node)=(yyvsp[(1) - (1)].node);}
     break;
 
   case 16:
 /* Line 1792 of yacc.c  */
-#line 150 "lab9ast.y"
+#line 148 "lab9ast.y"
     {(yyval.node) = (yyvsp[(1) - (1)].node);}
     break;
 
   case 17:
 /* Line 1792 of yacc.c  */
-#line 151 "lab9ast.y"
+#line 149 "lab9ast.y"
     {(yyvsp[(1) - (3)].node)->next=(yyvsp[(3) - (3)].node);
 			                       (yyval.node)=(yyvsp[(1) - (3)].node);}
     break;
 
   case 18:
 /* Line 1792 of yacc.c  */
-#line 155 "lab9ast.y"
+#line 153 "lab9ast.y"
     {if(mydebug) Display();
 			if(!Search((yyvsp[(2) - (2)].string),level+1,0)){
 			 (yyval.node)=ASTCreateNode(PARAM);
@@ -1676,7 +1676,7 @@ yyreduce:
 
   case 19:
 /* Line 1792 of yacc.c  */
-#line 169 "lab9ast.y"
+#line 167 "lab9ast.y"
     {if(!Search((yyvsp[(2) - (4)].string),level+1,0)){
 					  (yyval.node)=ASTCreateNode(PARAM);
 					  (yyval.node)->operator=(yyvsp[(1) - (4)].operator);
@@ -1694,13 +1694,13 @@ yyreduce:
 
   case 20:
 /* Line 1792 of yacc.c  */
-#line 184 "lab9ast.y"
+#line 182 "lab9ast.y"
     {level++;}
     break;
 
   case 21:
 /* Line 1792 of yacc.c  */
-#line 185 "lab9ast.y"
+#line 183 "lab9ast.y"
     {(yyval.node)=ASTCreateNode(BLOCK);
                                                         if ((yyvsp[(3) - (5)].node)==NULL) 
                                                             (yyval.node)->s0=(yyvsp[(4) - (5)].node);
@@ -1715,26 +1715,26 @@ yyreduce:
 
   case 22:
 /* Line 1792 of yacc.c  */
-#line 197 "lab9ast.y"
+#line 195 "lab9ast.y"
     {(yyval.node)=NULL;}
     break;
 
   case 23:
 /* Line 1792 of yacc.c  */
-#line 198 "lab9ast.y"
+#line 196 "lab9ast.y"
     {(yyvsp[(1) - (2)].node)->next=(yyvsp[(2) - (2)].node);
                                       			      (yyval.node)=(yyvsp[(1) - (2)].node);}
     break;
 
   case 24:
 /* Line 1792 of yacc.c  */
-#line 202 "lab9ast.y"
+#line 200 "lab9ast.y"
     {(yyval.node)=NULL;}
     break;
 
   case 25:
 /* Line 1792 of yacc.c  */
-#line 203 "lab9ast.y"
+#line 201 "lab9ast.y"
     {if((yyvsp[(1) - (2)].node) !=NULL){
 							(yyvsp[(1) - (2)].node)->next=(yyvsp[(2) - (2)].node);
                                        			(yyval.node)=(yyvsp[(1) - (2)].node);}
@@ -1743,55 +1743,55 @@ yyreduce:
 
   case 26:
 /* Line 1792 of yacc.c  */
-#line 209 "lab9ast.y"
+#line 207 "lab9ast.y"
     {(yyval.node) = (yyvsp[(1) - (1)].node);}
     break;
 
   case 27:
 /* Line 1792 of yacc.c  */
-#line 210 "lab9ast.y"
+#line 208 "lab9ast.y"
     {(yyval.node) = (yyvsp[(1) - (1)].node);}
     break;
 
   case 28:
 /* Line 1792 of yacc.c  */
-#line 211 "lab9ast.y"
+#line 209 "lab9ast.y"
     {(yyval.node) = (yyvsp[(1) - (1)].node);}
     break;
 
   case 29:
 /* Line 1792 of yacc.c  */
-#line 212 "lab9ast.y"
+#line 210 "lab9ast.y"
     {(yyval.node) = (yyvsp[(1) - (1)].node);}
     break;
 
   case 30:
 /* Line 1792 of yacc.c  */
-#line 213 "lab9ast.y"
+#line 211 "lab9ast.y"
     {(yyval.node) = (yyvsp[(1) - (1)].node);}
     break;
 
   case 31:
 /* Line 1792 of yacc.c  */
-#line 214 "lab9ast.y"
+#line 212 "lab9ast.y"
     {(yyval.node) = (yyvsp[(1) - (1)].node);}
     break;
 
   case 32:
 /* Line 1792 of yacc.c  */
-#line 215 "lab9ast.y"
+#line 213 "lab9ast.y"
     {(yyval.node) = (yyvsp[(1) - (1)].node);}
     break;
 
   case 33:
 /* Line 1792 of yacc.c  */
-#line 216 "lab9ast.y"
+#line 214 "lab9ast.y"
     {(yyval.node) = (yyvsp[(1) - (1)].node);}
     break;
 
   case 34:
 /* Line 1792 of yacc.c  */
-#line 219 "lab9ast.y"
+#line 217 "lab9ast.y"
     {(yyval.node)=NULL;
 		      (yyval.node)=ASTCreateNode(EXPRSTMT);
 		      (yyval.node)->s0=NULL;}
@@ -1799,7 +1799,7 @@ yyreduce:
 
   case 35:
 /* Line 1792 of yacc.c  */
-#line 222 "lab9ast.y"
+#line 220 "lab9ast.y"
     {(yyval.node)=ASTCreateNode(EXPRSTMT);
 	       		         (yyval.node)->s0=(yyvsp[(1) - (2)].node);
 				 (yyval.node)->istype=(yyvsp[(1) - (2)].node)->istype;
@@ -1810,7 +1810,7 @@ yyreduce:
 
   case 36:
 /* Line 1792 of yacc.c  */
-#line 231 "lab9ast.y"
+#line 229 "lab9ast.y"
     {(yyval.node)=ASTCreateNode(ASSIGNSTMT); 
 					   if(((yyvsp[(1) - (3)].node)->istype ==VOIDDEC) || ((yyvsp[(1) - (3)].node)->istype != (yyvsp[(3) - (3)].node)->istype)){
 						yyerror("type error for assignment statement ");
@@ -1824,7 +1824,7 @@ yyreduce:
 
   case 37:
 /* Line 1792 of yacc.c  */
-#line 242 "lab9ast.y"
+#line 240 "lab9ast.y"
     {(yyval.node)=ASTCreateNode(IFSTMT);
                                                  (yyval.node)->s0=(yyvsp[(3) - (5)].node);
                                                  (yyval.node)->s1=(yyvsp[(5) - (5)].node);
@@ -1833,7 +1833,7 @@ yyreduce:
 
   case 38:
 /* Line 1792 of yacc.c  */
-#line 247 "lab9ast.y"
+#line 245 "lab9ast.y"
     {(yyval.node)=ASTCreateNode(IFSTMT);
                                                           		    (yyval.node)->s0=(yyvsp[(3) - (7)].node);
                                                           	            (yyval.node)->s1=(yyvsp[(5) - (7)].node);
@@ -1842,7 +1842,7 @@ yyreduce:
 
   case 39:
 /* Line 1792 of yacc.c  */
-#line 253 "lab9ast.y"
+#line 251 "lab9ast.y"
     {(yyval.node)=ASTCreateNode(WHILESTMT);
                                                     (yyval.node)->s0=(yyvsp[(3) - (5)].node);
                                                     (yyval.node)->s1=(yyvsp[(5) - (5)].node);}
@@ -1850,35 +1850,35 @@ yyreduce:
 
   case 40:
 /* Line 1792 of yacc.c  */
-#line 258 "lab9ast.y"
+#line 256 "lab9ast.y"
     {(yyval.node)=ASTCreateNode(RETURNSTMT);
                          (yyval.node)->s0=NULL;}
     break;
 
   case 41:
 /* Line 1792 of yacc.c  */
-#line 260 "lab9ast.y"
+#line 258 "lab9ast.y"
     {(yyval.node)=ASTCreateNode(RETURNSTMT);
                                 	    (yyval.node)->s0=(yyvsp[(2) - (3)].node);}
     break;
 
   case 42:
 /* Line 1792 of yacc.c  */
-#line 264 "lab9ast.y"
+#line 262 "lab9ast.y"
     {(yyval.node)=ASTCreateNode(READSTMT);
                          (yyval.node)->s0=(yyvsp[(2) - (3)].node);}
     break;
 
   case 43:
 /* Line 1792 of yacc.c  */
-#line 268 "lab9ast.y"
+#line 266 "lab9ast.y"
     {(yyval.node)=ASTCreateNode(WRITESTMT);
                                   (yyval.node)->s0=(yyvsp[(2) - (3)].node);}
     break;
 
   case 44:
 /* Line 1792 of yacc.c  */
-#line 270 "lab9ast.y"
+#line 268 "lab9ast.y"
     {(yyval.node)=ASTCreateNode(WRITESTMT);
 				   (yyval.node)->string=CreateTemp();
                    	           (yyval.node)->name=(yyvsp[(2) - (3)].string);
@@ -1888,13 +1888,13 @@ yyreduce:
 
   case 45:
 /* Line 1792 of yacc.c  */
-#line 277 "lab9ast.y"
+#line 275 "lab9ast.y"
     {(yyval.node)=(yyvsp[(1) - (1)].node);}
     break;
 
   case 46:
 /* Line 1792 of yacc.c  */
-#line 280 "lab9ast.y"
+#line 278 "lab9ast.y"
     {struct SymbTab *p;
 	   if((p=Search((yyvsp[(1) - (1)].string),level,1))){
 			      (yyval.node)=ASTCreateNode(IDENTIFER);
@@ -1915,7 +1915,7 @@ yyreduce:
 
   case 47:
 /* Line 1792 of yacc.c  */
-#line 296 "lab9ast.y"
+#line 294 "lab9ast.y"
     {struct SymbTab *p;
 			     if((p=Search((yyvsp[(1) - (4)].string),level,1))){
 			     (yyval.node)=ASTCreateNode(IDENTIFER);
@@ -1936,13 +1936,13 @@ yyreduce:
 
   case 48:
 /* Line 1792 of yacc.c  */
-#line 314 "lab9ast.y"
+#line 312 "lab9ast.y"
     {(yyval.node)=(yyvsp[(1) - (1)].node);}
     break;
 
   case 49:
 /* Line 1792 of yacc.c  */
-#line 316 "lab9ast.y"
+#line 314 "lab9ast.y"
     {
 					if((yyvsp[(1) - (3)].node)->istype != (yyvsp[(3) - (3)].node)->istype){
 					yyerror("simple expression type mismsatch");
@@ -1960,49 +1960,49 @@ yyreduce:
 
   case 50:
 /* Line 1792 of yacc.c  */
-#line 331 "lab9ast.y"
+#line 329 "lab9ast.y"
     {(yyval.operator)=LESSTHANEQUAL;}
     break;
 
   case 51:
 /* Line 1792 of yacc.c  */
-#line 332 "lab9ast.y"
+#line 330 "lab9ast.y"
     {(yyval.operator)=LESSTHAN;}
     break;
 
   case 52:
 /* Line 1792 of yacc.c  */
-#line 333 "lab9ast.y"
+#line 331 "lab9ast.y"
     {(yyval.operator)=GREATERTHAN;}
     break;
 
   case 53:
 /* Line 1792 of yacc.c  */
-#line 334 "lab9ast.y"
+#line 332 "lab9ast.y"
     {(yyval.operator)=GREATERTHANEQUAL;}
     break;
 
   case 54:
 /* Line 1792 of yacc.c  */
-#line 335 "lab9ast.y"
+#line 333 "lab9ast.y"
     {(yyval.operator)=EQUAL;}
     break;
 
   case 55:
 /* Line 1792 of yacc.c  */
-#line 336 "lab9ast.y"
+#line 334 "lab9ast.y"
     {(yyval.operator)=NOTEQUAL;}
     break;
 
   case 56:
 /* Line 1792 of yacc.c  */
-#line 339 "lab9ast.y"
+#line 337 "lab9ast.y"
     {(yyval.node)=(yyvsp[(1) - (1)].node);}
     break;
 
   case 57:
 /* Line 1792 of yacc.c  */
-#line 341 "lab9ast.y"
+#line 339 "lab9ast.y"
     {
 		     if((yyvsp[(1) - (3)].node)->istype!=(yyvsp[(3) - (3)].node)->istype){
 		     	yyerror("additive expression type mismatch ");
@@ -2022,25 +2022,25 @@ yyreduce:
 
   case 58:
 /* Line 1792 of yacc.c  */
-#line 358 "lab9ast.y"
+#line 356 "lab9ast.y"
     {(yyval.operator)=PLUS;}
     break;
 
   case 59:
 /* Line 1792 of yacc.c  */
-#line 358 "lab9ast.y"
+#line 356 "lab9ast.y"
     {(yyval.operator)=MINUS;}
     break;
 
   case 60:
 /* Line 1792 of yacc.c  */
-#line 361 "lab9ast.y"
+#line 359 "lab9ast.y"
     {(yyval.node)=(yyvsp[(1) - (1)].node);}
     break;
 
   case 61:
 /* Line 1792 of yacc.c  */
-#line 363 "lab9ast.y"
+#line 361 "lab9ast.y"
     { if((yyvsp[(1) - (3)].node)->istype!=(yyvsp[(3) - (3)].node)->istype){
 			    yyerror("term type mismatch ");
 			    exit(1); 
@@ -2057,25 +2057,25 @@ yyreduce:
 
   case 62:
 /* Line 1792 of yacc.c  */
-#line 378 "lab9ast.y"
+#line 376 "lab9ast.y"
     {(yyval.operator)=TIMES;}
     break;
 
   case 63:
 /* Line 1792 of yacc.c  */
-#line 378 "lab9ast.y"
+#line 376 "lab9ast.y"
     {(yyval.operator)=DIV;}
     break;
 
   case 64:
 /* Line 1792 of yacc.c  */
-#line 381 "lab9ast.y"
+#line 379 "lab9ast.y"
     {(yyval.node)=(yyvsp[(2) - (3)].node);}
     break;
 
   case 65:
 /* Line 1792 of yacc.c  */
-#line 382 "lab9ast.y"
+#line 380 "lab9ast.y"
     {(yyval.node)=ASTCreateNode(NUMBER);
                (yyval.node)->value=(yyvsp[(1) - (1)].value);
 	       (yyval.node)->istype=INTDEC;}
@@ -2083,19 +2083,19 @@ yyreduce:
 
   case 66:
 /* Line 1792 of yacc.c  */
-#line 385 "lab9ast.y"
+#line 383 "lab9ast.y"
     {(yyval.node)=(yyvsp[(1) - (1)].node);}
     break;
 
   case 67:
 /* Line 1792 of yacc.c  */
-#line 386 "lab9ast.y"
+#line 384 "lab9ast.y"
     {(yyval.node)=(yyvsp[(1) - (1)].node);}
     break;
 
   case 68:
 /* Line 1792 of yacc.c  */
-#line 389 "lab9ast.y"
+#line 387 "lab9ast.y"
     {struct SymbTab *p;
 		if((p=Search((yyvsp[(1) - (4)].string),0,0))){
 			if(p->IsAFunc != 1){
@@ -2124,19 +2124,19 @@ yyreduce:
 
   case 69:
 /* Line 1792 of yacc.c  */
-#line 416 "lab9ast.y"
+#line 414 "lab9ast.y"
     {(yyval.node)=NULL;}
     break;
 
   case 70:
 /* Line 1792 of yacc.c  */
-#line 416 "lab9ast.y"
+#line 414 "lab9ast.y"
     {(yyval.node)=(yyvsp[(1) - (1)].node);}
     break;
 
   case 71:
 /* Line 1792 of yacc.c  */
-#line 419 "lab9ast.y"
+#line 417 "lab9ast.y"
     {(yyval.node)=ASTCreateNode(ARGLIST);
 		      (yyval.node)->name=CreateTemp();
 		      (yyval.node)->symbol=Insert((yyval.node)->name,INTDEC,0,level,1,offset,NULL);
@@ -2148,7 +2148,7 @@ yyreduce:
 
   case 72:
 /* Line 1792 of yacc.c  */
-#line 426 "lab9ast.y"
+#line 424 "lab9ast.y"
     {(yyval.node)=ASTCreateNode(ARGLIST);
 			           (yyval.node)->name=CreateTemp();
 		      		   (yyval.node)->symbol=Insert((yyval.node)->name,INTDEC,0,level,1,offset,NULL);
@@ -2391,7 +2391,7 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 435 "lab9ast.y"
+#line 433 "lab9ast.y"
  /* end rules */
 
 main(int argc,char *argv[])
@@ -2400,7 +2400,7 @@ main(int argc,char *argv[])
 //fprintf(stderr, "The input has been syntatically checked\n");
 //ASTprint(0,program);
 //extra display here
-//printf("Main symbol table START \n");
+//printf("Main symbol table START \n"); 
 //Display();  
 //printf("Main symbol table END \n");
 
@@ -2429,9 +2429,10 @@ else if(strcmp(argv[1],"-o")==0){
 	fclose(output);
 	return 1;
 }
+ else printf("error: not correct arguments! \n");
 
 
- //yyparse();
+//yyparse();
 //emitAST(program);
 
 }//end main

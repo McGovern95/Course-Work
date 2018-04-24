@@ -501,6 +501,4 @@ void desFunction(subKey* subKeys, unsigned char* block, unsigned char* desBlock,
 
 		desBlock[i/8] = desBlock[i/8] | (shift >> i%8);
 	}
-
-
 }//end desFunction();

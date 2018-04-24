@@ -1,10 +1,8 @@
 /*
-  Lab7, YACC file for symtable lab 
-  Added semantic action for building and
-  maintaining a symbol table
+  Lab9, YACC file for NASM generating 
 
   Christian McGovern
-  April 11, 2018
+  May 4, 2018
 */
 
 
@@ -218,7 +216,7 @@ statement : expressionstmt {$$ = $1;}
 
 expressionstmt : ';' {$$=NULL;
 		      $$=ASTCreateNode(EXPRSTMT);
-		      $$->s0=NULL;}
+		      $$->s0=NULL;} 
 	       | expression ';' {$$=ASTCreateNode(EXPRSTMT);
 	       		         $$->s0=$1;
 				 $$->istype=$1->istype;
@@ -440,7 +438,7 @@ main(int argc,char *argv[])
 //fprintf(stderr, "The input has been syntatically checked\n");
 //ASTprint(0,program);
 //extra display here
-//printf("Main symbol table START \n");
+//printf("Main symbol table START \n"); 
 //Display();  
 //printf("Main symbol table END \n");
 
@@ -469,9 +467,10 @@ else if(strcmp(argv[1],"-o")==0){
 	fclose(output);
 	return 1;
 }
+ else printf("error: not correct arguments! \n");
 
 
- //yyparse();
+//yyparse();
 //emitAST(program);
 
 }//end main

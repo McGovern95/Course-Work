@@ -1,5 +1,5 @@
 /*
-*  Lex Program for AST 
+*  Lex Program for NASM generator
 * Christian McGovern
 * Lab 6, 2/28
 */
@@ -18,7 +18,7 @@ int lineno=1;
 letter 		[a-zA-Z][a-zA-Z]*
 num 		[0-9][0-9]*
 id 		{letter}({letter}|{num})*
-string          \"(\\.|[^"\\])*\"
+string          \".*\"
 
 /*Begin Rules*/
 %%
