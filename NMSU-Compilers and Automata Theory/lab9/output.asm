@@ -17,12 +17,12 @@ _L7: db "while success!", 0	; global string
 section .text 
 	global main
 main:
-	mov rbp, rsp
+	mov rbp, rsp; for main only
 	mov r8, rsp
-	add r8, -160
+	add r8, -168
 	mov [r8], rbp
 	mov [r8+8],rsp
-	mov rsp, r8
+	mov rsp, r8 ;FUNC header new sp
 	PRINT_STRING _L0  ;standard write value 
 	NEWLINE ;standard newline
 
@@ -65,7 +65,7 @@ main:
 	PRINT_DEC 8, rsi   ;standard write value 
 	NEWLINE	;standard newline
 
-_L30:   ;WHILE TOP target 
+_L31:   ;WHILE TOP target 
 
 	mov rax, 16
 	add rax, rsp
@@ -80,7 +80,7 @@ _L30:   ;WHILE TOP target
 	mov [rsp+64], rax 
 	mov rax, [rsp+64] ;WHILE expression expr 
 	CMP rax, 0 ;WHILE compare
-	JE _L31, ;WHILE branch out
+	JE _L32, ;WHILE branch out
 	PRINT_STRING _L7  ;standard write value 
 	NEWLINE ;standard newline
 
@@ -99,9 +99,9 @@ _L30:   ;WHILE TOP target
 	add rax, rsp
 	mov rbx, [80 + rsp] 
 	mov [rax], rbx 
-	JMP _L30 ; WHILE jump back 
+	JMP _L31 ; WHILE jump back 
 
-_L31:   ;WHILE END target 
+_L32:   ;WHILE END target 
 	PRINT_STRING _L10  ;standard write value 
 	NEWLINE ;standard newline
 
@@ -111,7 +111,7 @@ _L31:   ;WHILE END target
 	PRINT_DEC 8, rsi   ;standard write value 
 	NEWLINE	;standard newline
 
-_L32:   ;IF TOP target 
+_L33:   ;IF TOP target 
 
 	mov rax, 24
 	add rax, rsp
@@ -126,7 +126,7 @@ _L32:   ;IF TOP target
 	mov [rsp+72], rax 
 	mov rax, [rsp+72] ;IF expression expr 
 	CMP rax, 0 ;IF compare
-	JE _L33, ;IF branch to ELSE
+	JE _L34, ;IF branch to ELSE
 	PRINT_STRING _L12  ;standard write value 
 	NEWLINE ;standard newline
 
@@ -145,9 +145,9 @@ _L32:   ;IF TOP target
 	add rax, rsp
 	mov rbx, [88 + rsp] 
 	mov [rax], rbx 
-	JMP _L32 ;IF S1 end
+	JMP _L33 ;IF S1 end
 
-_L33:   ;ELSE target 
+_L34:   ;ELSE target 
 	PRINT_STRING _L15  ;standard write value 
 	NEWLINE ;standard newline
 
@@ -157,7 +157,7 @@ _L33:   ;ELSE target
 	PRINT_DEC 8, rsi   ;standard write value 
 	NEWLINE	;standard newline
 
-_L34:   ;IF TOP target 
+_L35:   ;IF TOP target 
 
 	mov rax, 32
 	add rax, rsp
@@ -172,12 +172,12 @@ _L34:   ;IF TOP target
 	mov [rsp+80], rax 
 	mov rax, [rsp+80] ;IF expression expr 
 	CMP rax, 0 ;IF compare
-	JE _L35, ;IF branch to ELSE
+	JE _L36, ;IF branch to ELSE
 	PRINT_STRING _L17  ;standard write value 
 	NEWLINE ;standard newline
-	JMP _L34 ;IF S1 end
+	JMP _L35 ;IF S1 end
 
-_L35:   ;ELSE target 
+_L36:   ;ELSE target 
 	PRINT_STRING _L18  ;standard write value 
 	NEWLINE ;standard newline
 	PRINT_STRING _L19  ;standard write value 
@@ -245,13 +245,20 @@ _L35:   ;ELSE target
 	NEWLINE ;standard newline
 	mov rax, 5 
 	mov [rsp+152],rax 
-	mov rbx, 200 ;assign value to rbx
+	mov rbx, 208 ;assign value to rbx
 
 	mov rax, b
 	add rax, rbx ;add offset and stack pointer 
 	mov rbx, [152 + rsp] 
 	mov [rax], rbx 
-	mov rbx, 200 ;assign value to rbx
+	mov rax, 25
+	mov [rsp + 160], rax
+	mov rbx, 1
+	mov rax, [rsp+160]
+	add rax, rbx ;EXPR ADD 
+	mov [rsp+160], rax 
+	mov rbx, [rsp + 160] 
+	shl rbx, 3 ;dereference array size 
 
 	mov rax, b
 	add rax, rbx ;add offset and stack pointer 

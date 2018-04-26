@@ -38,6 +38,12 @@ void emitReturn(FILE *output){
 	fprintf(output,"\tmov rsp, rbp	 ;stack and BP need to be same on exit for main\n");
 	fprintf(output,"\tret\n");
 }//end emitreturn();
+
+void emitCall(ASTnode *p, FILE *output){
+
+
+}//end emitCall();
+
 /*
 
 	handles the Identifiers from YACC
@@ -47,17 +53,18 @@ void emitIdentifier(ASTnode *p, FILE *output){
         //array code
 	if(p->s0 != NULL){
 	   switch(p->s0->type){
-	   case NUMBER: fprintf(output,"\tmov rbx, %d ;assign value to rbx\n",p->s0->value*WSIZE);
-		    break;
+	   case NUMBER:
+		fprintf(output,"\tmov rbx, %d ;assign value to rbx\n",p->s0->value*WSIZE);
+		break;
 	   case IDENTIFER: emitIdentifier(p->s0,output);
 		fprintf(output,"\tmov rbx, [rax] \n");
 		fprintf(output,"\tshl rbx, 3 ;dereference array size \n"); 
-		    break;
+		break;
 	   case EXPR: emitExpr(p->s0,output);
 		fprintf(output,"\tmov rbx, [rsp + %d] \n",p->s0->symbol->offset*WSIZE);
 		fprintf(output,"\tshl rbx, 3 ;dereference array size \n");
-            break;
-	   case CALL:
+                break;
+	   case CALL: //emitCall(p->s0,output);
 	        break;
 	default: fprintf(output,"\t;BROKEN array idents\n"); 
 	        break;
@@ -65,7 +72,7 @@ void emitIdentifier(ASTnode *p, FILE *output){
            }//end switch
 	}//end if
       
-    if(p->symbol->level == 0){
+        if(p->symbol->level == 0){
 	 fprintf(output,"\n\tmov rax, %s\n", p->name);		
 	}
 	else{
@@ -184,13 +191,16 @@ void emitText(ASTnode *p, FILE *output){
 	     switch(p->type){
 		case VARDEC: break;
 		case FUNCTDEC: fprintf(output,"%s:\n",p->name);
-		     	       if(strcmp("main", p->name)==0)
-				  fprintf(output,"\tmov rbp, rsp\n");
+			       CURRENT_FUNCTION=p->name;
+		     	       if(strcmp("main", CURRENT_FUNCTION)==0)
+				  fprintf(output,"\tmov rbp, rsp; for main only\n");
 		     	       fprintf(output,"\tmov r8, rsp\n");
 		     	       fprintf(output,"\tadd r8, -%d\n", p->value * WSIZE);
 		     	       fprintf(output,"\tmov [r8], rbp\n");
-		     	       fprintf(output,"\tmov [r8+8],rsp\n");
-		     	       fprintf(output,"\tmov rsp, r8\n");
+		     	       fprintf(output,"\tmov [r8+%d],rsp\n",WSIZE);
+			       if(strcmp("main", CURRENT_FUNCTION)!=0)
+				  fprintf(output,"\tmov rbp, rsp ;FUNC header RSP has to be at most rbp\n");
+			       fprintf(output,"\tmov rsp, r8 ;FUNC header new sp\n");
 		     	       emitText(p->s1, output);
 		     	       emitReturn(output);
 		            break;
@@ -215,6 +225,8 @@ void emitText(ASTnode *p, FILE *output){
 				   case EXPR: emitExpr(p->s0,output);
 				      	      fprintf(output,"\tmov rsi, [rsp+%d] \n", p->s0->symbol->offset * WSIZE);
 			           break;
+				   case CALL: //emitCall(p->s0,output);
+					      //fprintf(output,"\tmov rsi, rax ;function call value \n");
 				default: fprintf(output, "\tBROKEN WRITESEMT\n"); break;
 
 				}//end WRITESTMT switch

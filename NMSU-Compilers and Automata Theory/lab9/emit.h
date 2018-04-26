@@ -10,7 +10,7 @@
 #define WSIZE 8
 
 int GLABEL;
-char *CURRENT_FUNTION;
+char *CURRENT_FUNCTION;
 
 void emitNASM(ASTnode *p, FILE *output);
 void emitGlobals(ASTnode *p,FILE *output);
@@ -20,8 +20,7 @@ int max(int maxoffset, int offset);
 void emitReturn(FILE *output);
 void emitIdentifier(ASTnode *p,FILE *output);
 void emitExpr(ASTnode *p, FILE *output);
-void emitWhile(ASTnode *p, FILE *output);
-
+void emitCall(ASTnode *p, FILE *output);
 
 /*void emit(FILE *output, char *label, char *command, char *comment){
 

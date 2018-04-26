@@ -38,6 +38,6 @@ int main(void) {
    write 5+5-5*1/1;
    write "math tests success!";
 
-   b[25] = 5;
-   write b[25];
+   b[26] = 5;
+   write b[25 + 1];
 }
