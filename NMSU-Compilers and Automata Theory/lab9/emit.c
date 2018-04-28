@@ -259,7 +259,7 @@ void emitText(ASTnode *p, FILE *output){
                             break;
 		case ASSIGNSTMT: emitText(p->s1,output);
 			         emitIdentifier(p->s0,output);
-				 fprintf(output,"\tmov rbx, [%d + rsp] \n",p->s1->symbol->offset*WSIZE);
+				 fprintf(output,"\tmov rbx, [rsp + %d] \n",p->s1->symbol->offset*WSIZE);
 				 fprintf(output,"\tmov [rax], rbx \n");
 		            break; 
 

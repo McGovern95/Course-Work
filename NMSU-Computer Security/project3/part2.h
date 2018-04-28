@@ -9,5 +9,10 @@
 #include <openssl/rsa.h>
 #include <openssl/err.h>
 #include <openssl/engine.h>
+#include <openssl/des.h>
+
+void DecryptSessionKey(void);
+void SignMessage(void);
+void EncryptDES(void);
 
 #endif
