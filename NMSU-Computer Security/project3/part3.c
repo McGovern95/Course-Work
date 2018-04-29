@@ -8,7 +8,7 @@ int main(int argc, char * argv[]){
 	int counter=0;
 	while(counter < argc){
 		if(strcmp(argv[counter],"-Public") == 0){
-			ourPublicKey = fopen(argv[counter+1],"rb");
+			ourPublicKey = fopen(argv[counter+1],"r");
 			if(ourPublicKey == NULL){
 				printf("Could not open file %s for reading.\n",argv[counter+1]);
 				exit(1);
@@ -16,7 +16,7 @@ int main(int argc, char * argv[]){
 			counter++;
 		}
 		else if(strcmp(argv[counter],"-DecryptedSessionKey") == 0){
-			decryptedSessionKey = fopen(argv[counter+1],"rb");
+			decryptedSessionKey = fopen(argv[counter+1],"r");
 			if(decryptedSessionKey == NULL){
 				printf("Could not open file %s for reading.\n",argv[counter+1]);
 				exit(1);
@@ -24,7 +24,7 @@ int main(int argc, char * argv[]){
 			counter++;
 		}
 		else if(strcmp(argv[counter],"-Cipher") == 0){
-			cipherText = fopen(argv[counter+1],"rb");
+			cipherText = fopen(argv[counter+1],"r");
 			if(cipherText == NULL){
 				printf("Could not open file %s for reading.\n",argv[counter+1]);
 				exit(1);
@@ -32,7 +32,7 @@ int main(int argc, char * argv[]){
 			counter++;
 		}
 		else if(strcmp(argv[counter],"-Signature") == 0){
-			signature = fopen(argv[counter+1],"rb");
+			signature = fopen(argv[counter+1],"r");
 			if(signature == NULL){
 				printf("Could not open file %s for reading.\n",argv[counter+1]);
 				exit(1);
@@ -56,7 +56,7 @@ int main(int argc, char * argv[]){
 	//printing plaintext
 	printf("The plaintext is: \n");
 	static FILE *decryptedCipher;
-	decryptedCipher = fopen("decryptedCipher.txt", "rb");
+	decryptedCipher = fopen("decryptedCipher.txt", "r");
 	if(!decryptedCipher){
 		printf("Error reading decryptedCipher.txt.\n");
 		exit(1);

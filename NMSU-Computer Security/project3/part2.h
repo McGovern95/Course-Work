@@ -28,9 +28,9 @@ void DecryptSessionKey(void){
 
 	//setting up in and inlen
 	//get inlen
-	fseek(encryptedSessionKey, 0L, SEEK_END);
+	fseek(encryptedSessionKey, 0, SEEK_END);
 	inlen = ftell(encryptedSessionKey);
-	fseek(encryptedSessionKey, 0L, SEEK_SET);
+	fseek(encryptedSessionKey, 0, SEEK_SET);
 
 	//allocate memory
 	in = (unsigned char *)malloc(inlen);
@@ -71,9 +71,9 @@ void DecryptSessionKey(void){
 		exit(1);
 	}
 	//write out to decryptedSessionKey.txt
-	FILE *decryptedSessionKey = fopen("decryptedSessionKey.txt", "wb");
+	FILE *decryptedSessionKey = fopen("decryptedSessionKey.txt", "w");
 	//fprintf(decryptedSessionKey, "%x", out);
-	fwrite(out, 8, 1, decryptedSessionKey);
+	fwrite(out, 1, 8, decryptedSessionKey);
 	printf("Decrypted session key printed to decryptedSessionKey.txt\n");
 
 	//closing files
@@ -90,11 +90,11 @@ void SignMessage(void){
 	size_t mdlen = 32, siglen, size;
 	EVP_PKEY *signingKey;
 	
-	FILE *cipherText = fopen("cipher.txt", "rb");
+	FILE *cipherText = fopen("cipher.txt", "r");
 	
-	fseek(cipherText, 0L, SEEK_END);
+	fseek(cipherText, 0, SEEK_END);
 	size = ftell(cipherText);
-	fseek(cipherText, 0L, SEEK_SET);
+	fseek(cipherText, 0, SEEK_SET);
 	//size+=1;
 	//allocate memory
 	md = (unsigned char *)malloc(size);
@@ -140,7 +140,7 @@ void SignMessage(void){
 	}
 		
 	//write out to decryptedSessionKey.txt
-	FILE *signature = fopen("signature.txt", "wb");
+	FILE *signature = fopen("signature.txt", "w");
 	//fprintf(cipherText, "%s", sig);
 	fwrite(sig, 1, siglen, signature);
 	printf("Cipher.txt signature printed to signature.txt\n");
@@ -159,9 +159,9 @@ void EncryptDES(void){
 	unsigned char *output, *input;
 	size_t size;
 	
-	fseek(plainText, 0L, SEEK_END);
+	fseek(plainText, 0, SEEK_END);
 	size = ftell(plainText);
-	fseek(plainText, 0L, SEEK_SET);
+	fseek(plainText, 0, SEEK_SET);
 	//size+=1;
 	input = (unsigned char *)malloc(size);
 	output = (unsigned char *)malloc(size);
@@ -176,10 +176,13 @@ void EncryptDES(void){
 	DES_set_odd_parity(&key);
 	DES_set_key_checked(&key, &schedule);
 	//was sizeof(input) in 3rd param
+	while(size%8 != 0){
+		size++;
+	}
 	DES_ncbc_encrypt(input, output, size, &schedule, &iv, DES_ENCRYPT);
 
 	//write out to cipher.txt
-	FILE *cipherText = fopen("cipher.txt", "wb");
+	FILE *cipherText = fopen("cipher.txt", "w");
 	//fprintf(decryptedSessionKey, "%x", out);
 	fwrite(output, 1, size, cipherText);
 	printf("Encrypted plaintext printed to cipher.txt\n");

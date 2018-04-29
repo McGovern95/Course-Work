@@ -21,31 +21,29 @@ void DecryptDES(void){
 	unsigned char *output, *input;
 	size_t size;
 	
-	fseek(cipherText, 0L, SEEK_END);
+	fseek(cipherText, 0, SEEK_END);
 	size = ftell(cipherText);
-	fseek(cipherText, 0L, SEEK_SET);
-	//size+=1;
+	fseek(cipherText, 0, SEEK_SET);
+	//size-=1;
 	input = (unsigned char *)malloc(size);
 	output = (unsigned char *)malloc(size);
 	
 	//read contents of cipherText to input
-	fread(input, 4, size, cipherText);
-
+	fread(input, 1, size, cipherText);
 	DES_cblock key = {0x62,0xa6,0x66,0x06,0xaa,0x5c,0xf6,0x36};
 	DES_cblock iv = {0x77,0x48,0xea,0xf9,0x25,0xf7,0xc1,0x06};
 
 	DES_key_schedule schedule;
 	DES_set_odd_parity(&key);
 	DES_set_key_checked(&key, &schedule);
-	//was sizeof(input) in 3rd param
 	DES_ncbc_encrypt(input, output, size, &schedule, &iv, DES_DECRYPT);
 
 	//write out to decryptedCipher.txt
-	FILE *decryptedCipher = fopen("decryptedCipher.txt", "wb");
+	FILE *decryptedCipher = fopen("decryptedCipher.txt", "w");
 	//fprintf(decryptedSessionKey, "%x", out);
 	fwrite(output, 1, size, decryptedCipher);
 	printf("Decrypted ciphertext printed to decryptedCipher.txt\n");
-
+	
 	//closing files
 	fclose(decryptedCipher);
 	//free
@@ -63,13 +61,13 @@ int VerifySignature(void){
 	EVP_PKEY *verify_key;
 	
 	//setting up mdlen and siglen
-	fseek(cipherText, 0L, SEEK_END);
+	fseek(cipherText, 0, SEEK_END);
 	mdlen = ftell(cipherText);
-	fseek(cipherText, 0L, SEEK_SET);
+	fseek(cipherText, 0, SEEK_SET);
 	//mdlen+=1;
-	fseek(signature, 0L, SEEK_END);
+	fseek(signature, 0, SEEK_END);
 	siglen = ftell(signature);
-	fseek(signature, 0L, SEEK_SET);
+	fseek(signature, 0, SEEK_SET);
 	//siglen+=1;
 
 	//setting up md and sig
@@ -78,7 +76,6 @@ int VerifySignature(void){
 	
 	sig = (unsigned char *)malloc(siglen);
 	fread(sig, 1, siglen, signature);
-	
 	//setting up verify_key
 	verify_key = PEM_read_PUBKEY(ourPublicKey, NULL, NULL, NULL);
 
