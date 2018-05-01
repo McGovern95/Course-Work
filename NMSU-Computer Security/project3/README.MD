@@ -1,9 +1,11 @@
-	#Signature and Validation C program 
+#	Signature and Validation C program 
 
 
  Included Files:
 	src: part2.c part2.h part3.c part3.h
+
 	compile scripts: makefile part2.sh part3.sh
+
 	keys: certificate.p12  encrypted_session.key iv.txt privkey.pem 
 	      pubkey.pem TApubkey.pem 
 	
