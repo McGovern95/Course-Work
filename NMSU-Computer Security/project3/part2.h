@@ -160,6 +160,10 @@ void EncryptDES(void){
 	//size+=1;
 	input = (unsigned char *)malloc(size);
 	output = (unsigned char *)malloc(size);
+
+	dkey = (unsigned char *)malloc(8);
+	buffer = (unsigned char *)malloc(8);
+
 	
 	//read contents of plainText to input
 	fread(input, 1, size, plainText);
@@ -197,10 +201,12 @@ void EncryptDES(void){
 	//closing files
 	fclose(cipherText);
 	fclose(ivkey);
-	//fclose(deckey);
+	fclose(deckey);
 	//free
 	free(input);
 	free(output);
+	free(dkey);
+	free(buffer);
 	
 
 }//end EncryptDES()

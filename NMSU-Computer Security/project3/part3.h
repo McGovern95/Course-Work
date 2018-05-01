@@ -10,7 +10,6 @@
 #include <openssl/err.h>
 #include <openssl/engine.h>
 #include <openssl/des.h>
-#include "part2.h"
 
 static FILE *ourPublicKey, *decryptedSessionKey, *cipherText, *signature;
 //unsigned char ivr[8];
@@ -20,29 +19,33 @@ int VerifySignature(void);
 
 void DecryptDES(void){
 
-	unsigned char *output, *input, *dkey, buffer[]="";
+	unsigned char *output, *input, *dkey, *buffer;
 	size_t size;
 	
 	fseek(cipherText, 0, SEEK_END);
 	size = ftell(cipherText);
 	fseek(cipherText, 0, SEEK_SET);
-	//size-=1;
+	
+	//malloc the pointers
 	input = (unsigned char *)malloc(size);
 	output = (unsigned char *)malloc(size);
-	
+	dkey = (unsigned char *)malloc(8);
+	buffer =  (unsigned char *)malloc(8);
+
 	//read contents of cipherText to input
 	fread(input, 1, size, cipherText);
-        //reading in key
-	fread(dkey,1,size,decryptedSessionKey);
+    //reading in key
+	fread(dkey,1,8,decryptedSessionKey);
 
 	DES_cblock key = {dkey[0],dkey[1],dkey[2],dkey[3],dkey[4],dkey[5],dkey[6],dkey[7]};
 	//reading iv
 	FILE * ivkey;
 	ivkey = fopen("iv.txt","rb");
 	if(!ivkey){printf("no iv file in dir, exiting \n");exit(0);}
-	fread(buffer,1,size,ivkey);
+	fread(buffer,1,8,ivkey);
 	DES_cblock iv = {buffer[0],buffer[1],buffer[2],buffer[3],buffer[4],buffer[5],buffer[6],buffer[7]};//random iv
 
+    //des stuff
 	DES_key_schedule schedule;
 	DES_set_odd_parity(&key);
 	DES_set_key_checked(&key, &schedule);
@@ -56,11 +59,13 @@ void DecryptDES(void){
 	
 	//closing files
 	fclose(decryptedCipher);
+	fclose(ivkey);
 	//free
 	free(input);
 	free(output);
+	free(dkey);
+	free(buffer);
 	
-
 }//end DecryptDES()
 
 int VerifySignature(void){
