@@ -21,7 +21,7 @@
 	2) type sh part2.sh
 	3) type sh part3.sh
 
-	command line arg method:
+	Command line arg method:
 	 1) type make
 	 2) command line syntax:
 			for part 2: ./part2 -Plain (plain text file name) -EncryptedSessionKey (session key file name) -ThirdPartyPublic (third party public key file name) -Private (private key file name)
