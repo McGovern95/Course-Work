@@ -10,15 +10,17 @@
 #include <openssl/err.h>
 #include <openssl/engine.h>
 #include <openssl/des.h>
+#include "part2.h"
 
 static FILE *ourPublicKey, *decryptedSessionKey, *cipherText, *signature;
+//unsigned char ivr[8];
 
 void DecryptDES(void);
 int VerifySignature(void);
 
 void DecryptDES(void){
 
-	unsigned char *output, *input;
+	unsigned char *output, *input, *dkey, buffer[]="";
 	size_t size;
 	
 	fseek(cipherText, 0, SEEK_END);
@@ -30,8 +32,16 @@ void DecryptDES(void){
 	
 	//read contents of cipherText to input
 	fread(input, 1, size, cipherText);
-	DES_cblock key = {0x62,0xa6,0x66,0x06,0xaa,0x5c,0xf6,0x36};
-	DES_cblock iv = {0x77,0x48,0xea,0xf9,0x25,0xf7,0xc1,0x06};
+        //reading in key
+	fread(dkey,1,size,decryptedSessionKey);
+
+	DES_cblock key = {dkey[0],dkey[1],dkey[2],dkey[3],dkey[4],dkey[5],dkey[6],dkey[7]};
+	//reading iv
+	FILE * ivkey;
+	ivkey = fopen("iv.txt","rb");
+	if(!ivkey){printf("no iv file in dir, exiting \n");exit(0);}
+	fread(buffer,1,size,ivkey);
+	DES_cblock iv = {buffer[0],buffer[1],buffer[2],buffer[3],buffer[4],buffer[5],buffer[6],buffer[7]};//random iv
 
 	DES_key_schedule schedule;
 	DES_set_odd_parity(&key);
@@ -39,7 +49,7 @@ void DecryptDES(void){
 	DES_ncbc_encrypt(input, output, size, &schedule, &iv, DES_DECRYPT);
 
 	//write out to decryptedCipher.txt
-	FILE *decryptedCipher = fopen("decryptedCipher.txt", "w");
+	FILE *decryptedCipher = fopen("decryptedCipher.txt", "wb");
 	//fprintf(decryptedSessionKey, "%x", out);
 	fwrite(output, 1, size, decryptedCipher);
 	printf("Decrypted ciphertext printed to decryptedCipher.txt\n");
@@ -57,18 +67,16 @@ int VerifySignature(void){
 
 	EVP_PKEY_CTX *ctx;
 	unsigned char *md, *sig;
-	size_t mdlen, siglen;
+	size_t mdlen=32, siglen;
 	EVP_PKEY *verify_key;
 	
 	//setting up mdlen and siglen
-	fseek(cipherText, 0, SEEK_END);
-	mdlen = ftell(cipherText);
-	fseek(cipherText, 0, SEEK_SET);
-	//mdlen+=1;
+	fseek(cipherText, 0L, SEEK_SET);
+
 	fseek(signature, 0, SEEK_END);
 	siglen = ftell(signature);
 	fseek(signature, 0, SEEK_SET);
-	//siglen+=1;
+	
 
 	//setting up md and sig
 	md = (unsigned char *)malloc(mdlen);
@@ -76,6 +84,7 @@ int VerifySignature(void){
 	
 	sig = (unsigned char *)malloc(siglen);
 	fread(sig, 1, siglen, signature);
+
 	//setting up verify_key
 	verify_key = PEM_read_PUBKEY(ourPublicKey, NULL, NULL, NULL);
 
@@ -103,7 +112,7 @@ int VerifySignature(void){
 
 	//ret == 1 is succes, 0 failure, and < 0 for other error
 	int ret;
-	ret = EVP_PKEY_verify(ctx, md, mdlen, sig, siglen);
+	ret = EVP_PKEY_verify(ctx, sig, siglen, md, mdlen);
 	
 	//free
 	free(md);

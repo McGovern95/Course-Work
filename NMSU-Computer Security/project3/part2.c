@@ -7,7 +7,7 @@ int main(int argc, char * argv[]){
 	int counter=0;
 	while(counter < argc){
 		if(strcmp(argv[counter],"-Plain") == 0){
-			plainText = fopen(argv[counter+1],"r");
+			plainText = fopen(argv[counter+1],"rb");
 			if(plainText == NULL){
 				printf("Could not open file %s for reading.\n",argv[counter+1]);
 				exit(1);
@@ -15,7 +15,7 @@ int main(int argc, char * argv[]){
 			counter++;
 		}
 		else if(strcmp(argv[counter],"-EncryptedSessionKey") == 0){
-			encryptedSessionKey = fopen(argv[counter+1],"r");
+			encryptedSessionKey = fopen(argv[counter+1],"rb");
 			if(encryptedSessionKey == NULL){
 				printf("Could not open file %s for reading.\n",argv[counter+1]);
 				exit(1);
@@ -23,7 +23,7 @@ int main(int argc, char * argv[]){
 			counter++;
 		}
 		else if(strcmp(argv[counter],"-ThirdPartyPublic") == 0){
-			theirPublicKey = fopen(argv[counter+1],"r");
+			theirPublicKey = fopen(argv[counter+1],"rb");
 			if(theirPublicKey == NULL){
 				printf("Could not open file %s for reading.\n",argv[counter+1]);
 				exit(1);
@@ -31,7 +31,7 @@ int main(int argc, char * argv[]){
 			counter++;
 		}
 		else if(strcmp(argv[counter],"-Private") == 0){
-			ourPrivateKey = fopen(argv[counter+1],"r");
+			ourPrivateKey = fopen(argv[counter+1],"rb");
 			if(ourPrivateKey == NULL){
 				printf("Could not open file %s for reading.\n",argv[counter+1]);
 				exit(1);

@@ -73,7 +73,7 @@ void DecryptSessionKey(void){
 	//write out to decryptedSessionKey.txt
 	FILE *decryptedSessionKey = fopen("decryptedSessionKey.txt", "w");
 	//fprintf(decryptedSessionKey, "%x", out);
-	fwrite(out, 1, 8, decryptedSessionKey);
+	fwrite(out, 8, 1, decryptedSessionKey);
 	printf("Decrypted session key printed to decryptedSessionKey.txt\n");
 
 	//closing files
@@ -87,20 +87,16 @@ void SignMessage(void){
 
 	EVP_PKEY_CTX *ctx;
 	unsigned char *md, *sig;
-	size_t mdlen = 32, siglen, size;
+	size_t mdlen=32, siglen;
 	EVP_PKEY *signingKey;
 	
 	FILE *cipherText = fopen("cipher.txt", "r");
-	
-	fseek(cipherText, 0, SEEK_END);
-	size = ftell(cipherText);
-	fseek(cipherText, 0, SEEK_SET);
-	//size+=1;
+
 	//allocate memory
-	md = (unsigned char *)malloc(size);
+	md = (unsigned char *)malloc(mdlen);
 	
-	//read contents of plainText to in
-	fread(md, 1, size, cipherText);
+	//read contents of cipherText to md
+	fread(md, 1, mdlen, cipherText);
 	
 	signingKey = PEM_read_PrivateKey(ourPrivateKey,NULL,NULL,NULL);
 
@@ -141,7 +137,6 @@ void SignMessage(void){
 		
 	//write out to decryptedSessionKey.txt
 	FILE *signature = fopen("signature.txt", "w");
-	//fprintf(cipherText, "%s", sig);
 	fwrite(sig, 1, siglen, signature);
 	printf("Cipher.txt signature printed to signature.txt\n");
 
@@ -156,7 +151,7 @@ void SignMessage(void){
 
 void EncryptDES(void){
 
-	unsigned char *output, *input;
+	unsigned char *output, *input, *dkey, *buffer;
 	size_t size;
 	
 	fseek(plainText, 0, SEEK_END);
@@ -168,27 +163,41 @@ void EncryptDES(void){
 	
 	//read contents of plainText to input
 	fread(input, 1, size, plainText);
+	//reading in key
+	FILE * deckey = fopen("decryptedSessionKey.txt","rb");
+	fread(dkey,1,size,deckey);
 
-	DES_cblock key = {0x62,0xa6,0x66,0x06,0xaa,0x5c,0xf6,0x36};
-	DES_cblock iv = {0x77,0x48,0xea,0xf9,0x25,0xf7,0xc1,0x06};
+	//the key is the hex value of the decryptedSessionKey.txt in UTF-16 (抦昆꩜) 
+	//the value of UTF-8 (Šbfª6ö) is 160 62 06 66 aa 36 f6 which won't work
+	//windows is (¦b^Ffª6ö) a6 62 5e 46 66 aa 36 f6
+	//WE USE UTF-16
+	DES_cblock key = {dkey[0],dkey[1],dkey[2],dkey[3],dkey[4],dkey[5],dkey[6],dkey[7]};
+	//random iv each time
+	FILE * ivkey = fopen("iv.txt","wb");
+	if(!ivkey){printf("no iv file in dir, exiting \n");exit(0);}
+	RAND_pseudo_bytes(buffer,8);
+	fwrite(buffer,1,8,ivkey);
+	fread(buffer,1,8,ivkey);
+	
+	DES_cblock iv = {buffer[0],buffer[1],buffer[2],buffer[3],buffer[4],buffer[5],buffer[6],buffer[7]};//random iv
 
 	DES_key_schedule schedule;
 	DES_set_odd_parity(&key);
 	DES_set_key_checked(&key, &schedule);
-	//was sizeof(input) in 3rd param
 	while(size%8 != 0){
 		size++;
 	}
 	DES_ncbc_encrypt(input, output, size, &schedule, &iv, DES_ENCRYPT);
 
 	//write out to cipher.txt
-	FILE *cipherText = fopen("cipher.txt", "w");
-	//fprintf(decryptedSessionKey, "%x", out);
+	FILE *cipherText = fopen("cipher.txt", "wb");
 	fwrite(output, 1, size, cipherText);
 	printf("Encrypted plaintext printed to cipher.txt\n");
 
 	//closing files
 	fclose(cipherText);
+	fclose(ivkey);
+	//fclose(deckey);
 	//free
 	free(input);
 	free(output);

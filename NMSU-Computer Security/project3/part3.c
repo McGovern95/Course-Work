@@ -8,7 +8,7 @@ int main(int argc, char * argv[]){
 	int counter=0;
 	while(counter < argc){
 		if(strcmp(argv[counter],"-Public") == 0){
-			ourPublicKey = fopen(argv[counter+1],"r");
+			ourPublicKey = fopen(argv[counter+1],"rb");
 			if(ourPublicKey == NULL){
 				printf("Could not open file %s for reading.\n",argv[counter+1]);
 				exit(1);
@@ -16,7 +16,7 @@ int main(int argc, char * argv[]){
 			counter++;
 		}
 		else if(strcmp(argv[counter],"-DecryptedSessionKey") == 0){
-			decryptedSessionKey = fopen(argv[counter+1],"r");
+			decryptedSessionKey = fopen(argv[counter+1],"rb");
 			if(decryptedSessionKey == NULL){
 				printf("Could not open file %s for reading.\n",argv[counter+1]);
 				exit(1);
@@ -24,7 +24,7 @@ int main(int argc, char * argv[]){
 			counter++;
 		}
 		else if(strcmp(argv[counter],"-Cipher") == 0){
-			cipherText = fopen(argv[counter+1],"r");
+			cipherText = fopen(argv[counter+1],"rb");
 			if(cipherText == NULL){
 				printf("Could not open file %s for reading.\n",argv[counter+1]);
 				exit(1);
@@ -32,7 +32,7 @@ int main(int argc, char * argv[]){
 			counter++;
 		}
 		else if(strcmp(argv[counter],"-Signature") == 0){
-			signature = fopen(argv[counter+1],"r");
+			signature = fopen(argv[counter+1],"rb");
 			if(signature == NULL){
 				printf("Could not open file %s for reading.\n",argv[counter+1]);
 				exit(1);
@@ -56,7 +56,7 @@ int main(int argc, char * argv[]){
 	//printing plaintext
 	printf("The plaintext is: \n");
 	static FILE *decryptedCipher;
-	decryptedCipher = fopen("decryptedCipher.txt", "r");
+	decryptedCipher = fopen("decryptedCipher.txt", "rb");
 	if(!decryptedCipher){
 		printf("Error reading decryptedCipher.txt.\n");
 		exit(1);
@@ -70,10 +70,10 @@ int main(int argc, char * argv[]){
 	
 	//verifying signature
 	if(VerifySignature() == 1){
-		printf("\nSignature authentication confirmed.\n");
+		printf("Signature authentication confirmed.\n");
 	}
 	else{
-		printf("\nSignature authentication failed.\n");
+		printf("Signature authentication failed.\n");
 	}
 	
 	//closing files
