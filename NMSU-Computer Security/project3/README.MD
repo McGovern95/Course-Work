@@ -24,8 +24,9 @@
 	command line arg method:
 	 1) type make
 	 2) command line syntax:
-               for part 2: ./part2 -Plain (plain text file name) -EncryptedSessionKey (session key file name) -ThirdPartyPublic (third party public key file name) -Private (private key file name)
-			   for part 3: ./part3 -Public (public key file name) -DecryptedSessionKey (decrypted session key file name) -Cipher (cipher file name) -Signature (signature file name)
+			for part 2: ./part2 -Plain (plain text file name) -EncryptedSessionKey (session key file name) -ThirdPartyPublic (third party public key file name) -Private (private key file name)
+
+			for part 3: ./part3 -Public (public key file name) -DecryptedSessionKey (decrypted session key file name) -Cipher (cipher file name) -Signature (signature file name)
 
 	   Example command line arguements: 
 		./part2 -Plain plain.txt -EncryptedSessionKey encrypted_session.key -ThirdPartyPublic TApubkey.pem -Private privkey.pem
