@@ -4,6 +4,7 @@ int main(void) {
   int x;
   int z;
   int a;
+  int p[100];
 
    write "Enter a number";
    read y;

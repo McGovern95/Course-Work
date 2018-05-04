@@ -1998,7 +1998,7 @@ yyreduce:
 		      		   (yyval.node)->symbol=Insert((yyval.node)->name,INTDEC,0,level,1,offset,NULL);
                                	   (yyval.node)->next=(yyvsp[0].node);
                                	   (yyval.node)->s0=(yyvsp[-2].node);
-				    offset;}
+				    offset++;}
 #line 2003 "y.tab.c" /* yacc.c:1646  */
     break;
 
@@ -2270,6 +2270,8 @@ else if(strcmp(argv[1],"-o")==0){
 	return 1;
 }
  else printf("error: not correct arguments! \n");
+
+return 0;
 
 
 //yyparse();

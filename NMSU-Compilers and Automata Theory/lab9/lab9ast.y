@@ -426,7 +426,7 @@ arglist : expression {$$=ASTCreateNode(ARGLIST);
 		      		   $$->symbol=Insert($$->name,INTDEC,0,level,1,offset,NULL);
                                	   $$->next=$3;
                                	   $$->s0=$1;
-				    offset;}
+				    offset++;}
 		;
 
 
@@ -468,6 +468,8 @@ else if(strcmp(argv[1],"-o")==0){
 	return 1;
 }
  else printf("error: not correct arguments! \n");
+
+return 0;
 
 
 //yyparse();

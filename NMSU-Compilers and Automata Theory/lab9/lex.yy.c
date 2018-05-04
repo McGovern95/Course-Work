@@ -806,130 +806,130 @@ case 1:
 YY_RULE_SETUP
 #line 26 "lab9ast.l"
 {if (mydebug) fprintf(stderr,"int found\n"); 
-            							    return(INT);}
+            					return(INT);}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
 #line 28 "lab9ast.l"
 {if (mydebug) fprintf(stderr,"void found\n"); 
-            							    return(VOID);}
+            					return(VOID);}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
 #line 30 "lab9ast.l"
 {if (mydebug) fprintf(stderr,"if found\n"); 
-            							    return(IF);}
+            					return(IF);}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
 #line 32 "lab9ast.l"
 {if (mydebug) fprintf(stderr,"else found\n"); 
-            							    return(ELSE);}	
+            					return(ELSE);}	
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 34 "lab9ast.l"
 {if (mydebug) fprintf(stderr,"while found\n"); 
-            							    return(WHILE);}
+            					return(WHILE);}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
 #line 36 "lab9ast.l"
 {if (mydebug) fprintf(stderr,"return found\n"); 
-            							    return(RETURN);}
+            					return(RETURN);}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 38 "lab9ast.l"
 {if (mydebug) fprintf(stderr,"read found\n"); 
-            							    return(READ);}
+            					return(READ);}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 40 "lab9ast.l"
 {if (mydebug) fprintf(stderr,"write found\n"); 
-            							    return(WRITE);}
+            					return(WRITE);}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 43 "lab9ast.l"
+#line 42 "lab9ast.l"
 {if (mydebug) fprintf(stderr,"LE found\n"); 
-            							    return(LE);}
+            					return(LE);}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 46 "lab9ast.l"
+#line 44 "lab9ast.l"
 {if (mydebug) fprintf(stderr,"GE found\n"); 
-            							    return(GE);}
+            					return(GE);}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 49 "lab9ast.l"
+#line 46 "lab9ast.l"
 {if (mydebug) fprintf(stderr,"EQ found\n"); 
-            							    return(EQ);}
+            					return(EQ);}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 52 "lab9ast.l"
+#line 48 "lab9ast.l"
 {if (mydebug) fprintf(stderr,"LE found\n"); 
-            							    return(NE);}
+            					return(NE);}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 55 "lab9ast.l"
+#line 50 "lab9ast.l"
 {if (mydebug) fprintf(stderr,"LT found\n"); 
-            							    return(LT);}
+            					return(LT);}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 58 "lab9ast.l"
+#line 52 "lab9ast.l"
 {if (mydebug) fprintf(stderr,"GT found\n"); 
-            							    return(GT);}
+            					return(GT);}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 62 "lab9ast.l"
+#line 56 "lab9ast.l"
 {if (mydebug) fprintf(stderr,"id found\n"); 
               yylval.string=strdup(yytext);return(ID);}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 65 "lab9ast.l"
+#line 59 "lab9ast.l"
 {if (mydebug) fprintf(stderr,"num found\n"); 
               yylval.value=atoi((const char *)yytext); return(NUM);}	
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 69 "lab9ast.l"
+#line 62 "lab9ast.l"
 {}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 70 "lab9ast.l"
+#line 63 "lab9ast.l"
 {if (mydebug) fprintf(stderr, "return a semicolon %c\n", *yytext);
 					   				   return (*yytext);}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 72 "lab9ast.l"
-{ if (mydebug) fprintf(stderr,"return a token %c\n",*yytext); //added () to set
+#line 65 "lab9ast.l"
+{if (mydebug) fprintf(stderr,"return a token %c\n",*yytext); //added () to set
                        					                   return (*yytext);}
 	YY_BREAK
 case 20:
 /* rule 20 can match eol */
 YY_RULE_SETUP
-#line 74 "lab9ast.l"
+#line 67 "lab9ast.l"
 {lineno++;} 
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 76 "lab9ast.l"
+#line 69 "lab9ast.l"
 {if (mydebug) fprintf(stderr,"string found\n"); 
             		 yylval.string=strdup(yytext); return(STRING);}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 79 "lab9ast.l"
+#line 72 "lab9ast.l"
 ECHO;
 	YY_BREAK
 #line 936 "lex.yy.c"
@@ -1933,7 +1933,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 79 "lab9ast.l"
+#line 72 "lab9ast.l"
 
 
 /*End Rules*/

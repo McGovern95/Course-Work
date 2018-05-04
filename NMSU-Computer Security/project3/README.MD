@@ -8,6 +8,8 @@
 	COMPILE SCRIPTS: makefile part2.sh part3.sh
 
 	KEYS: certificate.p12  encrypted_session.key privkey.pem pubkey.pem TApubkey.pem 
+
+	Other: cipher.txt plain.txt signature.txt
 	
 
  Instuctions on using this program:
