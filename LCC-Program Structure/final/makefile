@@ -1,3 +1,5 @@
+all: program
+
 program: McGovernChristianFinal.o
 	 g++ McGovernChristianFinal.o -o program
 
