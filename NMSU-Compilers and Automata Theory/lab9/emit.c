@@ -1,401 +1,559 @@
 /*
   Lab9, "Emiter" file for NASM generation 
-
   Christian McGovern
   May 4, 2018
 */
 
-
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <malloc.h>
-#include "lab9ast.h"
-#include "symtable.h"
 #include "emit.h"
 
-char *L1, *L2;//temp variables for if/else and while
-/*
+//calls what to print at the correct time
+void emitNASM(ASTnode *p, FILE *out){
 
-	returns the max of offset and maxoffset used in yacc
+	if(p==NULL) return;
+	fprintf(out, "%%include \"io64.inc\"\n\n");
+	ASTglobals(p, out);
+	fprintf(out, "\nsection .data\n\n");
+	ASTstrings(p, out);
+	fprintf(out, "\nsection .text\n\n");
+	fprintf(out, "\tglobal main\n\n");
+	ASTtext(p, out);
 
-*/
-int max(int maxoffset, int offset){
+}
 
-	if(maxoffset > offset) return maxoffset;
-	else return offset;
+//prints global variables
+void ASTglobals(ASTnode *p, FILE *out){
+	if(p==NULL)
+		return;
+	if((p->type == VARDEC) && (p->value == 0)){
+		fprintf(out, "common\t%s\t%d\n", p->name, WSIZE);
+	}
+	else if((p->type == VARDEC) && (p->value > 0)){
+		fprintf(out, "common\t%s\t%d\n", p->name, (p->value * WSIZE));
+	}
+	ASTglobals(p->next, out);
+}
 
-}//end max
-/*
+//prints strings
+void ASTstrings(ASTnode *p, FILE *out){
+	if(p==NULL)
+		return;
+	if((p->type == WRITESTMT) && (p->name != NULL)){
+		fprintf(out, "%s:\tdb\t%s,%d\t;global string\n",p->label,p->name,0);
+	}
+	ASTstrings(p->next, out);
+	ASTstrings(p->s1, out);
+	ASTstrings(p->s2, out);
+	ASTstrings(p->s3, out);
+}
 
-	adds the ending of a NASM program
-
-*/
-void emitReturn(FILE *output){
-	fprintf(output,"\n\tmov rbp, [rsp] ;FUNC end restore old BP\n");
-	fprintf(output,"\tmov rsp, [rsp+8] ;FUNC end restore old SP\n");
-	fprintf(output,"\tmov rsp, rbp	 ;stack and BP need to be same on exit for main\n");
-	fprintf(output,"\tret ;return\n");
-}//end emitreturn();
-
-//- 10% :(
-void emitCall(ASTnode *p, FILE *output){
-
-
-}//end emitCall();
-
-/*
-
-	handles the Identifiers from YACC
+void ASTtext(ASTnode *p, FILE *out){
 	
-*/
-void emitIdentifier(ASTnode *p, FILE *output){
-        //array code
-	if(p->s0 != NULL){
-	   switch(p->s0->type){
-	   case NUMBER:
-		fprintf(output,"\tmov rbx, %d ;assign value to rbx\n",p->s0->value*WSIZE);
-		break;
-	   case IDENTIFER: emitIdentifier(p->s0,output);
-		fprintf(output,"\tmov rbx, [rax] \n");
-		fprintf(output,"\tshl rbx, 3 ;dereference array size \n"); 
-		break;
-	   case EXPR: emitExpr(p->s0,output);
-		fprintf(output,"\tmov rbx, [rsp + %d] \n",p->s0->symbol->offset*WSIZE);
-		fprintf(output,"\tshl rbx, 3 ;dereference array size \n");
-                break;
-	   case CALL: //emitCall(p->s0,output);
-	        break;
-	default: fprintf(output,"\t;BROKEN array idents\n"); 
-	        break;
+	if (p == NULL) 
+		return;
+	else{ 
+		char *L1, *L2;
+
+		switch (p->type) {
+
+			case VARDEC :  
+				break;
+
+			case FUNDEC :
+				/*header*/
+				currentFunction = p->name;
+				fprintf(out, "%s:\t\t;Start of Function\n",p->name);
+				if(strcmp(p->name, "main") == 0)
+					fprintf(out, "\tmov\trbp, rsp\t;For main only\n");
+				fprintf(out, "\tmov\tr8, rsp\t;FUNC header RSP has to be at most RBP\n");
+				fprintf(out, "\tadd\tr8, -%d\t;adjust Stack Pointer for Activation record\n",p->value * WSIZE);
+				fprintf(out, "\tmov\t[r8], rbp\t;FUNC header store old BP\n");
+				fprintf(out, "\tmov\t[r8+8], rsp\t;FUNC header store old SP\n");
+				if(strcmp(p->name, "main") != 0)
+					fprintf(out, "\tmov\trbp, rsp\t;FUNC header TSP has to be at most rbp\n");
+				fprintf(out, "\tmov\trsp, r8\t;FUNC header new SP\n");
+
+				ASTtext(p->s2, out);
+
+				/*footer*/
+				fprintf(out, "\txor\trax, rax\t;nothing to return\n");
+	
+				fprintf(out,"\n\tmov\trbp, [rsp]\t;FUNC end restore old BP\n");
+				fprintf(out,"\tmov\trsp, [rsp+8]\t;FUNC end restore old SP\n");
+				if(strcmp(currentFunction, "main") == 0)
+					fprintf(out,"\tmov\trsp, rbp\t;stack and BP need to be same on exit for main\n");
+				fprintf(out,"\tret\n");
+				
+				break;
+
+			case CMPDSTMT :
+				ASTtext(p->s1, out);
+				ASTtext(p->s2, out);
+				break;
+
+			case PARAM :
+				break;
+
+			case EXPRSTMT :
+				if(p->s1 != NULL){
+					switch(p->s1->type){
+						case NUMB: 
+							fprintf(out, "\tmov\trax, %d \t;get identifier offset\n", p->s1->value);
+							break;
+						case IDENT: 
+							emitIdent(p->s1, out);
+							fprintf(out, "\tmov\trax, [rax]\t;expression ident\n");
+							break;
+						case EXPR: 
+							emitExpr(p->s1, out);
+							fprintf(out, "\tmov\trax, [rsp+%d]\t;expressionstmt expr\n", p->s1->symbol->offset*WSIZE);
+							break;
+						case FUNCALL:
+							emitFunction(p->s1, out);
+							break;
+						default:
+							fprintf(out, "\tBAD EXPRSTMT\n");
+							break;
+					}
+					fprintf(out, "\tmov\t[rsp+%d], rax\t;store rhs\n", p->symbol->offset*WSIZE);
+				}		
+				break;
+
+			case ASIGNSTMT :
+				ASTtext(p->s2, out);
+				emitIdent(p->s1, out);
+				fprintf(out, "\tmov\trbx, [rsp+%d]\t;fetch rhs of assign temporarily\n", p->s2->symbol->offset*WSIZE);
+				fprintf(out, "\tmov\t[rax], rbx\t;move rhs into rax\n");
+				break;
+
+			case SELECSTMT :
+
+				L1=CreateLabel();
+				L2=CreateLabel();
+				
+				switch(p->s1->type){
+					case NUMB:
+						fprintf(out, "\tmov\trax, %d \t;If value loaded\n", p->s1->value);
+						break;
+						
+					case IDENT:
+						emitIdent(p->s1, out);
+						fprintf(out, "\tmov\trax, [rax]\t;if expression IDENT\n");
+						break;
+						
+					case FUNCALL:
+						emitFunction(p->s1, out);
+						break;
+						
+					case EXPR:
+						emitExpr(p->s1, out);
+						fprintf(out, "\tmov\trax, [rsp+%d]\t;if expression expr\n", p->s1->symbol->offset*WSIZE);
+						break;
+						
+					default:
+						fprintf(out, "\t;Bad if\n");
+						break;
+				}
+				
+				fprintf(out, "\tCMP\trax, 0\t;if compare\n");
+				fprintf(out, "\tJE\t%s, \t;if branch to else\n", L1);
+				
+				ASTtext(p->s2, out);
+				
+				fprintf(out, "\tJMP\t%s\t;If s1 end\n", L2);
+				fprintf(out, "\n%s:\t;else target\n", L1);
+				
+				ASTtext(p->s3, out);
+				
+				fprintf(out, "\n%s:\t;IF bottom target\n", L2);
+				
+				break;
+
+			case ITRASTMT :
+				L1=CreateLabel();
+				L2=CreateLabel();
+				
+				fprintf(out, "\n%s:\t;while top target\n", L1);
+				
+				switch(p->s1->type){
+				
+					case NUMB:
+						fprintf(out, "\tmov\trax, %d \t;while value loaded\n", p->s1->value);
+						break;
+					case IDENT:
+						emitIdent(p->s1, out);
+						fprintf(out, "\tmov\trax, [rax]\t;while expression ident\n");
+						break;
+					case FUNCALL:
+						emitFunction(p->s1, out);
+						break;
+					case EXPR:
+						emitExpr(p->s1, out);
+						fprintf(out, "\tmov\trax, [rsp+%d]\t;while expression expr\n", p->s1->symbol->offset*WSIZE);
+						break;
+					default:
+						fprintf(out, "\t;bad while\n");
+						break;
+				}
+				
+				fprintf(out, "\tCMP\trax, 0\t;while compare\n");
+				fprintf(out, "\tJE\t%s,\t;while branch\n", L2);
+				
+				ASTtext(p->s2, out);
+				
+				fprintf(out, "\tJMP\t%s\t;while jump back \n", L1);
+				fprintf(out, "\n%s:\t;while end target\n", L2);
+			
+				break;
+
+			case RTRNSTMT :
+				emitReturn(p, out);
+				break;
+
+			case READSTMT :
+				emitIdent(p->s1, out);
+				fprintf(out, "\tGET_DEC\t8, [rax]\t;readstmt\n");
+				break;
+
+			case WRITESTMT :
+				if(p->s1 != NULL){
+				
+					switch(p->s1->type){
+					
+						case NUMB:
+							fprintf(out, "\tmov\trsi, %d \t;load immediate value\n", p->s1->value);
+							break;
+							
+						case IDENT:
+							emitIdent(p->s1, out);
+							fprintf(out, "\tmov\trsi, [rax]\t;load immediate value\n");
+							break;
+						
+						case EXPR:
+							emitExpr(p->s1, out);
+							fprintf(out, "\tmov\trsi, [rsp+%d]\t;load expr value from expr mem\n", p->s1->symbol->offset*WSIZE);
+							break;
+						
+						case FUNCALL:
+							emitFunction(p->s1, out);
+							fprintf(out, "\tmov\trsi, rax\t;store function return into rsi\n");
+							break;
+						
+						default:
+							fprintf(out, "\t;bad WRITESTMT\n");
+							break;
+					
+					}
+					
+					fprintf(out, "\tPRINT_DEC\t8, rsi\t;standard write value\n");
+					fprintf(out, "\tNEWLINE\t\t;standard newline\n");
+				
+				}
+				
+				if(p->name != NULL){
+					fprintf(out, "\tPRINT_STRING\t%s\t;standard write value\n", p->label);
+					fprintf(out, "\tNEWLINE\t\t;standard newline\n");
+				}
+				
+				break;
+
+			case EXPR :
+				fprintf(out, "\t;EXPR\n");
+				break;
+
+			case IDENT :
+				fprintf(out, "\t;IDENT\n");
+				break;
+
+			case NUMB :	
+				fprintf(out, "\t;NUMB\n");
+				break;
+
+			case FUNCALL :
+				emitFunction(p->s1, out);
+				break;
+
+			case ARG :
+				fprintf(out, "\t;ARG\n");
+				break;
+
+			default: fprintf(out, "\t;unknown type in ASTtext\n");
+
+		}//end switch
+
+		ASTtext(p->next, out);
+
+	}//end else
+}//end ASTtext()
+
+void emitExpr(ASTnode *p, FILE *out){
+
+	//left side
+	switch(p->s1->type){
+	
+		case NUMB:
+			fprintf(out, "\tmov\trax, %d \t;get identifier offset\n", p->s1->value);
+			break;
 		
-           }//end switch
+		case IDENT:
+			emitIdent(p->s1, out);
+			fprintf(out, "\tmov\trax, [rax]\t;LHS expression is identifier\n");
+			break;
+		
+		case EXPR:
+			emitExpr(p->s1, out);
+			fprintf(out, "\tmov\trax, [rsp+%d]\t;fetch LHS of expression from memory\n", p->s1->symbol->offset * WSIZE);
+			break;
+		
+		case FUNCALL:
+			emitFunction(p->s1, out);
+			break;
+		
+		default:
+			fprintf(out, "\t;bad left side\n");
+			break;
+	
+	}//end left switch
+	
+	//store
+	fprintf(out, "\tmov\t[rsp+%d], rax\t;store rax\n", p->symbol->offset * WSIZE);
+	
+	//right side
+	switch(p->s2->type){
+	
+		case NUMB:
+			fprintf(out, "\tmov\trbx, %d \t;get identifier offset\n", p->s2->value);
+			break;
+		
+		case IDENT:
+			emitIdent(p->s2, out);
+			fprintf(out, "\tmov\trbx, [rax]\t;RHS expression is identifier\n");
+			break;
+		
+		case EXPR:
+			emitExpr(p->s2, out);
+			fprintf(out, "\tmov\trbx, [rsp+%d]\t;fetch RHS of expression from memory\n", p->s2->symbol->offset * WSIZE);
+			break;
+		
+		case FUNCALL:
+			emitFunction(p->s1, out);
+			fprintf(out, "\tmov\trbx, rax\t;store function return into rbx\n");
+			break;
+		
+		default:
+			fprintf(out, "\t;bad right side\n");
+			break;
+	
+	}//end right switch
+	
+	//store
+	fprintf(out, "\tmov\trax, [rsp+%d]\t;store rsp + offset into rax\n", p->symbol->offset * WSIZE);
+
+	//operators
+	switch(p->operator){
+	
+		case PLUS:
+			fprintf(out, "\tadd\trax, rbx\t;EXPR ADD\n");
+			break;
+			
+		case MINUS:
+			fprintf(out, "\tsub\trax, rbx\t;EXPR SUB\n");
+			break;
+			
+		case TIMES:
+			fprintf(out, "\timul\trax, rbx\t;EXPR TIMES\n");
+			break;
+			
+		case DIVIDE:
+			fprintf(out, "\txor\trdx, rdx\t;EXPR XOR\n");
+			fprintf(out, "\tidiv\trbx\t;EXPR DIV\n");
+			break;
+			
+		case EQUAL:
+			fprintf(out, "\tcmp\trax, rbx\t;EXPR EQUAL\n");
+			fprintf(out, "\tsete\tal\t;EXPR EQUAL\n");
+			fprintf(out, "\tmov\trbx, 1\t;set rbx to one to filter rax\n");
+			fprintf(out, "\tand\trax, rbx\t;filter rax\n");
+			break;
+			
+		case NOTEQUAL:
+			fprintf(out, "\tcmp\trax, rbx\t;EXPR NOTEQUAL\n");
+			fprintf(out, "\tsetne\tal\t;EXPR NOTEQUAL\n");
+			fprintf(out, "\tmov\trbx, 1\t;Set rbx to 1 to filter rax\n");
+			fprintf(out, "\tand\trax, rbx\t;filter rax\n");
+			break;
+			
+		case LESSTHAN:
+			fprintf(out, "\tcmp\trax, rbx\t;EXPR LESSTHAN \n");
+			fprintf(out, "\tsetl\tal\t;EXPR LESSTHAN\n");
+			fprintf(out, "\tmov\trbx, 1\t;set rbx to 1 to filter rax\n");
+			fprintf(out, "\tand\trax, rbx\t;filter RAX\n");
+			break;
+			
+		case GREATERTHAN:
+			fprintf(out, "\tcmp\trax, rbx\t;EXPR GREATERTHAN\n");
+			fprintf(out, "\tsetg\tal\t;EXPR GREATERTHAN\n");
+			fprintf(out, "\tmov\trbx, 1\t;set rbx to 1 to filter rax\n");
+			fprintf(out, "\tand\trax, rbx\t;filter rax\n");
+			break;
+			
+		case LESSTHANEQUAL:
+			fprintf(out, "\tcmp\trax, rbx\t;EXPR LESSTHANEQUAL\n");
+			fprintf(out, "\tsetle\tal\t;EXPR LESSTHANEQUAL\n");
+			fprintf(out, "\tmov\trbx, 1\t;Set rbx to 1 to filter rax\n");
+			fprintf(out, "\tand\trax, rbx\t;filter rax\n");
+			break;
+		
+		case GREATERTHANEQUAL:
+			fprintf(out, "\tcmp\trax, rbx\t;EXPR GREATERTHANEQUAL\n");
+			fprintf(out, "\tsetge\tal\t;EXPRE GREATERTHANEQUAL\n");
+			fprintf(out, "\tmov\trbx, 1\t;set rbx to one to filter rax\n");
+			fprintf(out, "\tand\trax, rbx\t;filter rax\n");
+			break;
+			
+		default:
+			fprintf(out, "\tbad operator\n");
+			break;
+	
+	}
+	
+	//store
+	fprintf(out, "\tmov\t[rsp+%d], rax\t;store rax\n", p->symbol->offset * WSIZE);
+
+}//end emitExpr
+
+void emitIdent(ASTnode *p, FILE *out){
+
+	if(p->s1 != NULL){
+	
+		switch(p->s1->type){
+		
+			case NUMB:
+				fprintf(out, "\tmov\trbx, %d \t;assign value to rbx\n",p->s1->value*WSIZE);
+				break;
+			
+			case IDENT:
+				emitIdent(p->s1, out);
+				fprintf(out, "\tmov\trbx, [rax]\t;move rax value to rbx\n");
+				fprintf(out, "\tshl\trbx, 3\t;Array reference needs WSIZE differencing\n");
+				break;
+				
+			case EXPR:
+				emitExpr(p->s1, out);
+				fprintf(out, "\tmov\trbx, [rsp+%d]\t;move array value at sp to rbx\n", p->s1->symbol->offset*WSIZE);
+				fprintf(out, "\tshl\trbx, 3\t;Array reference needs WSIZE differencing\n");
+				break;
+				
+			case FUNCALL:
+				emitFunction(p->s1, out);
+				fprintf(out, "\tmov\trbx, rax\t;store function return\n");
+				fprintf(out, "\tshl\trbx, 3\t;Array reference needs WSIZE differencing\n");
+				break;
+				
+			default:
+				fprintf(out, "\t;bad array idents\n");
+				break;
+		
+		}//end switch
+	
 	}//end if
-        //identifier
-        if(p->symbol->level == 0){
-	 fprintf(output,"\n\tmov rax, %s ;name moved to rax\n", p->name);		
+	
+	if(p->symbol->level == 0){
+		fprintf(out, "\n\tmov\trax, %s\t;put address into rax\n", p->name);
 	}
 	else{
-	 fprintf(output,"\n\tmov rax, %d ;offset moved to rax\n", p->symbol->offset *WSIZE);
-	 fprintf(output,"\tadd rax, rsp ;stack added to rax\n");	
+		fprintf(out, "\n\tmov\trax, %d \t;get identifier offset\n", p->symbol->offset *WSIZE);
+		fprintf(out, "\tadd\trax, rsp\t;Add the sp to have direct reference to memory\n");
+
 	}
-       //more array
-	if(p->s0 != NULL)
-	   fprintf(output,"\tadd rax, rbx ;add offset and stack pointer \n");//takes internal offset and adds it to main
-
-}//end emitIdentifier
-/*
-
-	handles the expressions from YACC
 	
-*/
-void emitExpr(ASTnode *p, FILE *output){
+	if(p->s1 != NULL)
+		fprintf(out, "\tadd\trax, rbx\t;add offset and stack pointer\n");
 
-        //left side of expressions
-	switch(p->s0->type){
+}//end emitIdent
 
-	case NUMBER:
-		fprintf(output,"\tmov rax, %d ;move NUMBER to rax, left \n",p->s0->value);
-		break;
-	case IDENTIFER: emitIdentifier(p->s0,output);
-		fprintf(output,"\tmov rax, [rax] ;move value rax to rax, ident left \n");
-		break;
-	case EXPR: emitExpr(p->s0,output);
-		fprintf(output,"\tmov rax, [rsp+%d] ;add offset to rsp and move to rax, expr left\n",p->s0->symbol->offset *WSIZE);
-                break;
-	case CALL: break;
 
-	default:fprintf(output,"\t;BROKEN left side of expr\n"); break; 
+void emitFunction(ASTnode *p, FILE *out){
+	//gets value from arg
+	evaluateArgs(p->s1, out);
+	//moves args of function call to params of function
+	emitArgsToParams(p->s1, p->symbol->fparms, p->symbol->mysize, out);
+	fprintf(out, "\tcall\t%s\t;call function\n", p->name);
+	return;
+}//end emitFunction
 
-       }//end switch
-
-	fprintf(output,"\tmov [rsp+%d], rax ;move rax to rsp value with added offset, after left\n", p->symbol->offset*WSIZE);//Stores
-
-        //right side of expressions
+void evaluateArgs(ASTnode *p, FILE *out){
+	if(p == NULL){
+		return;
+	}
 	switch(p->s1->type){
-	case NUMBER:
-		fprintf(output,"\tmov rbx, %d ;move NUMBER to rbx, right\n",p->s1->value);
-		break;
-	case IDENTIFER: emitIdentifier(p->s1,output);
-		fprintf(output,"\tmov rbx, [rax] ;move value of rax to rbx, IDENT right\n");
-		break;
-	case EXPR: emitExpr(p->s1,output);
-		fprintf(output,"\tmov rbx, [rsp+%d] ;add offset to rsp and move to rax, expr right\n",p->s1->symbol->offset*WSIZE);
-		break;
-	case CALL: 
-		break;
-	default:fprintf(output,"\t;BROKEN right side of expr\n");break;
+		case NUMB:
+			fprintf(out, "\tmov\trax, %d \t;arg number\n", p->s1->value);
+			break;
+		case IDENT:
+			emitIdent(p->s1, out);
+			fprintf(out, "\tmov\trax, [rax]\t;arg identifier value\n");
+			break;
+		case EXPR:
+			emitExpr(p->s1, out);
+			fprintf(out, "\tmov\trax, [rsp+%d]\t;arg expression\n", p->s1->symbol->offset * WSIZE);
+			break;
+		case FUNCALL:
+			emitFunction(p->s1, out);
+			break;
+		default:
+			fprintf(out, "\t;bad arg type\n");
+			break;
+	}
+	fprintf(out, "\tmov\t[rsp+%d], rax\t;store arg into arglist offset\n", p->symbol->offset * WSIZE);
+	evaluateArgs(p->next, out);
+}//end evaluateArgs
 
-	}//end switch
+//moves all args of function call to params of function
+void emitArgsToParams(ASTnode *arg, ASTnode *param, int functionSize, FILE *out){
+	fprintf(out, "\tmov\trbx, rsp\t;store rsp in rbx\n");
+	fprintf(out, "\tsub\trbx, %d \t;subtract functionSize+1 to get location on stack\n", ((functionSize+1)*WSIZE));
+	while(param != NULL){
+		//copy arg
+		fprintf(out, "\tmov\trax, [rsp+%d]\t;temporarily store arg contents\n", arg->symbol->offset * WSIZE);
+		//mov arg to param
+		fprintf(out, "\tmov\t[rbx+%d], rax\t;copy contents of rax into param\n", param->symbol->offset * WSIZE);
+		//go through all params/args
+		arg=arg->next;
+		param=param->next;
+	}//end while still params
+}//end emitArgsToParams
 
-	fprintf(output,"\tmov rax, [rsp+%d] ;offset add to rsp value and move to rax\n",p->symbol->offset*WSIZE);//Stores
-        //operators
-	switch(p->operator){
-	case PLUS:  fprintf(output,"\tadd rax, rbx ;EXPR ADD \n");
-		    break;
-	case MINUS: fprintf(output,"\tsub rax, rbx ;EXPR SUB \n");
-		    break;
-	case TIMES: fprintf(output,"\timul rax, rbx ;EXPR TIMES \n");
-		    break;
-	case DIV:   fprintf(output,"\txor rdx, rdx \n");
-		    fprintf(output,"\tidiv rbx ;EXPR DIV \n");
-		    break;
-	case EQUAL: fprintf(output,"\tcmp rax, rbx ;EXPR EQUAL \n");
-		    fprintf(output,"\tsete al ;EXPR EQUAL \n");
-		    fprintf(output,"\tmov rbx, 1 ;set rbx to one to filter rax\n");
-		    fprintf(output,"\tand rax, rbx ;filter RAX\n");
-		    break;
-	case NOTEQUAL: fprintf(output,"\tcmp rax, rbx ;EXPR NOTEQUAL \n");
-		    fprintf(output,"\tsetne al ;EXPR EQUAL \n");
-		    fprintf(output,"\tmov rbx, 1 ;set rbx to one to filter rax\n");
-		    fprintf(output,"\tand rax, rbx ;filter RAX\n");
-		    break;
-	case LESSTHAN: fprintf(output,"\tcmp rax, rbx ;EXPR LESSTHAN \n");
-		    fprintf(output,"\tsetl al ;EXPR LESSTHAN \n");
-		    fprintf(output,"\tmov rbx, 1 ;set rbx to one to filter rax\n");
-		    fprintf(output,"\tand rax, rbx ;filter RAX\n");
-		    break;
-	case GREATERTHAN: fprintf(output,"\tcmp rax, rbx ;EXPR GREATERTHAN \n");
-		    fprintf(output,"\tsetg al ;EXPR GREATERTHAN \n");
-		    fprintf(output,"\tmov rbx, 1 ;set rbx to one to filter rax\n");
-		    fprintf(output,"\tand rax, rbx ;filter RAX\n");
-		    break;
-	case LESSTHANEQUAL:fprintf(output,"\tcmp rax, rbx ;EXPR LESSTHANEQUAL \n");
-		    fprintf(output,"\tsetle al ;EXPR LESSTHANEQUAL \n");
-		    fprintf(output,"\tmov rbx, 1 ;set rbx to one to filter rax\n");
-		    fprintf(output,"\tand rax, rbx ;filter RAX\n");
-		    break;
-
-	case GREATERTHANEQUAL:fprintf(output,"\tcmp rax, rbx ;EXPR GREATERTHANEQUAL \n");
-		    fprintf(output,"\tsetge al ;EXPR GREATERTHANEQUAL \n");
-		    fprintf(output,"\tmov rbx, 1 ;set rbx to one to filter rax\n");
-		    fprintf(output,"\tand rax, rbx ;filter RAX\n");
-		    break;
-	
-	default: fprintf(output,"\tBROKEN operator\n"); break;
-
-	}//end switch
-
-	fprintf(output,"\tmov [rsp+%d], rax ;rax to value of rsp + offset end\n",p->symbol->offset*WSIZE);//Stores
-
-
-}//end emitEXPR
-/*
-
-	large function which prints out the entire NASM code after starting 
-        headers
-
-*/
-void emitText(ASTnode *p, FILE *output){
-	if(p==NULL) return;
-	
-	     switch(p->type){
-		case VARDEC: break;
-		case FUNCTDEC: fprintf(output,"%s:\n",p->name);
-			       CURRENT_FUNCTION=p->name;
-		     	       if(strcmp("main", CURRENT_FUNCTION)==0)
-				  fprintf(output,"\tmov rbp, rsp; for main only\n");
-		     	       fprintf(output,"\tmov r8, rsp ;inital mov to r8\n");
-		     	       fprintf(output,"\tadd r8, -%d ;add - total value to r8\n", p->value * WSIZE);
-		     	       fprintf(output,"\tmov [r8], rbp ; initial move of base to value r8\n");
-		     	       fprintf(output,"\tmov [r8+%d],rsp ;initial move of stack p to value r8 with added 8\n",WSIZE);
-			       if(strcmp("main", CURRENT_FUNCTION)!=0)
-				  fprintf(output,"\tmov rbp, rsp ;FUNC header RSP has to be at most rbp\n");
-			       fprintf(output,"\tmov rsp, r8 ;FUNC header new sp\n");
-		     	       emitText(p->s1, output);
-		     	       emitReturn(output);
-		            break;
-		case PARAM: break;
-
-	        case BLOCK: emitText(p->s0,output);
-	                    emitText(p->s1,output);
-			    break; 
-		case RETURNSTMT: emitReturn(output); 
-			    break;
-		case READSTMT: emitIdentifier(p->s0,output);
-			       fprintf(output,"\tGET_DEC 8, [rax] ;read into value of rax\n");
-			    break;
-
-		case WRITESTMT: if(p->s0!=NULL){ 
-				   switch(p->s0->type){
-				   case NUMBER: fprintf(output,"\tmov rsi, %d  ; load immediate value to rsi, writestmt\n", p->value);
-                            	   break;
-				   case IDENTIFER: emitIdentifier(p->s0, output);
-						   fprintf(output,"\tmov rsi,[rax] ; load immediate value  to rsi IDENT\n");
-				   break; 	
-				   case EXPR: emitExpr(p->s0,output);
-				      	      fprintf(output,"\tmov rsi, [rsp+%d] ;offset added to stack p mov to rsi, expr writestmt\n", p->s0->symbol->offset * WSIZE);
-			           break;
-				   case CALL: //emitCall(p->s0,output);
-					      //fprintf(output,"\tmov rsi, rax ;function call value \n");
-				default: fprintf(output, "\tBROKEN WRITESEMT\n"); break;
-
-				}//end WRITESTMT switch
-				fprintf(output,"\tPRINT_DEC 8, rsi   ;standard write value \n");
-				fprintf(output,"\tNEWLINE	;standard newline\n");
-
-			        }//end if
-				if(p->name!=NULL){
-				   fprintf(output,"\tPRINT_STRING %s  ;standard write value with string \n",p->string);
-				   fprintf(output,"\tNEWLINE ;standard newline\n");
-				 }
-   
-		   	    break;
-
-                case EXPRSTMT: if(p->s0 != NULL){
-			  	   switch(p->s0->type){
-				   case NUMBER: fprintf(output,"\tmov rax, %d ; move NUMBER to rax \n",p->s0->value);
-				   break;
-				   case IDENTIFER: emitIdentifier(p->s0,output);
-					           fprintf(output,"\tmov rax, [rax] ;move IDENTIFER memory address to rax\n");  
-				   break;
-				   case EXPR: emitExpr(p->s0,output);
-					      fprintf(output,"\tmov rax, [rsp+%d] ; expression offset adding to stack and then move to rax\n",p->s0->symbol->offset*WSIZE);
-				   break;
-			           default: fprintf(output, "\tBROKEN exprstmt\n"); break;
-
-			           }//end EXPRSTMT switch
-		                   fprintf(output,"\tmov [rsp+%d],rax ;move rax to memory address of added offset to rsp \n",p->symbol->offset*WSIZE);
-		               }//end if
-                            break;
-		case ASSIGNSTMT: emitText(p->s1,output);
-			         emitIdentifier(p->s0,output);
-				 fprintf(output,"\tmov rbx, [rsp+%d] ;offset of assignment added to rsp then moved to rax\n",p->s1->symbol->offset*WSIZE);
-				 fprintf(output,"\tmov [rax], rbx ;move rbx to value of \n");
-		            break; 
-
-	        case IFSTMT: L1=CreateTemp();
-			     L2=CreateTemp();
-
-			     fprintf(output,"\n%s:   ;IF TOP target \n",L1);
-		
-		             switch(p->s0->type){
-			     case NUMBER: fprintf(output,"\tmov rax, %d ;IF value loaded\n",p->s0->value);
-		             break;
-			     case IDENTIFER: emitIdentifier(p->s0,output);
-			                     fprintf(output,"\tmov rax, [rax] ;IF expression IDENT\n");
-		     	     break;
-			     case CALL: fprintf(output,"IFSTMT CALL");
-			     break;
-			     case EXPR: emitExpr(p->s0,output);
-			  	        fprintf(output,"\tmov rax, [rsp+%d] ;IF expression expr \n",p->s0->symbol->offset*WSIZE);
-		     	     break;
-               		     default: fprintf(output, "\tBROKEN IF switch\n"); break;
-			     }//end IFSTMT switch
-
-			     fprintf(output,"\tCMP rax, 0 ;IF compare\n");
-		             fprintf(output,"\tJE %s, ;IF branch to ELSE\n",L2);
-		
-			     emitText(p->s1,output);//if stuff
-
-			     fprintf(output,"\tJMP %s ;IF S1 end\n",L1);
-		
-			     fprintf(output,"\n%s:   ;ELSE target \n",L2);
-		
-			     emitText(p->s2,output);//all the else stuff
-	
-		            break; 
-		case WHILESTMT: L1=CreateTemp();
-			        L2=CreateTemp();
-			        fprintf(output,"\n%s:   ;WHILE TOP target \n",L1);
-
-			        switch(p->s0->type){
-				case NUMBER: fprintf(output,"\tmov rax, %d ;WHILE value loaded\n",p->s0->value);
-		     		break;
-				case IDENTIFER: emitIdentifier(p->s0,output);
-			        	        fprintf(output,"\tmov rax, [rax] ;WHILE expression IDENT\n");
-		    	        break;
-			        case CALL: fprintf(output,"CALL WHILE");
-			    	break;
-			        case EXPR: emitExpr(p->s0,output);
-			   	           fprintf(output,"\tmov rax, [rsp+%d] ;WHILE expression expr \n",p->s0->symbol->offset*WSIZE);
-		     	        break;
-                
-			       default: fprintf(output, "\tBROKEN while switch\n"); break;
-			       }//end switch
-
-			       fprintf(output,"\tCMP rax, 0 ;WHILE compare\n");
-			       fprintf(output,"\tJE %s, ;WHILE branch out\n",L2);
-	
-			       emitText(p->s1,output);//puts inside of while loop
-	
-			       fprintf(output,"\tJMP %s ; WHILE jump back \n",L1);
-			       fprintf(output,"\n%s:   ;WHILE END target \n",L2);
-		                				 
-		     	    break;
-	        
-	        case IDENTIFER:fprintf(output,"IDENT"); 
-		            break;
-		case NUMBER: fprintf(output,"NUM"); 
-		            break;
-		case CALL: fprintf(output,"CALL");
-			    break;
-		case ARGLIST: fprintf(output,"ARGLIST");
-		            break;
-
-		default: fprintf(output,";Case: not recognized");
-			    break;
-
-
-	      }//end emitText switch
-	      emitText(p->next,output);
-}//end emitText();
-/*
-
-	handles global variables
-	
-*/
-void emitGlobals(ASTnode *p, FILE *output){
-
-   if(p==NULL) return;
-
-   if(p->type==VARDEC){
-     if (p->value>0) 
-        fprintf(output,"\tcommon %s %d\n",p->name,p->value*WSIZE);
-     else
-        fprintf(output, "\tcommon %s %d\n", p->name,WSIZE);
-   }//end vardec if 
-
-   emitGlobals(p->next,output);
-
-}//end emitGlobals();
-/*
-
-	handles strings from YACC
-	
-*/
-void emitStrings(ASTnode *p, FILE *output){
-	
-   if(p==NULL) return;
-   //prints out global string on top for writing strings
-   if(p->type == WRITESTMT){
-       if(p->s0 == NULL) 
-          fprintf(output,"%s: db %s, 0\t; global string\n",p->string,p->name);
-   }//end if.
-  
-    if(p->next != NULL)
-       emitStrings(p->next,output);
-    if(p->s0 != NULL)
-       emitStrings(p->s0,output);
-    if(p->s1 != NULL)
-       emitStrings(p->s1,output);
-    if(p->s2 != NULL)
-       emitStrings(p->s2,output);
-}//end emitStrings(); 
-
-void emitNASM(ASTnode *p, FILE *output){
-        //syntax of starting NASM code
-    	fprintf(output, "%%include \"io64.inc\" \n");
-	emitGlobals(p, output);
-	fprintf(output,"section .data \n");
-	emitStrings(p, output);
-	fprintf(output,"\n");
-	fprintf(output,"section .text \n");
-	fprintf(output, "	global main\n");
-        //the whole thing basically 
-	emitText(p,output);
-
-}//end emitNASM();
+//returns value or nothing
+void emitReturn(ASTnode *p, FILE *out){
+	if((p != NULL) && (p->s1 != NULL)){
+		switch(p->s1->type){
+			case NUMB:
+				fprintf(out, "\tmov\trax, %d \t;return number\n", p->s1->value);
+				break;
+			case IDENT:
+				emitIdent(p->s1, out);
+				fprintf(out, "\tmov\trax, [rax]\t;return identifier value\n");
+				break;
+			case EXPR:
+				emitExpr(p->s1, out);
+				fprintf(out, "\tmov\trax, [rsp+%d]\t;return value of expression\n", p->s1->symbol->offset * WSIZE);
+				break;
+			case FUNCALL:
+				emitFunction(p->s1, out);
+				break;
+			default:
+				fprintf(out, "\t;bad return\n");
+				break;
+		}//end return switch
+	}//end if has something to return
+	else{
+		fprintf(out, "\txor\trax, rax\t;nothing to return\n");
+	}
+	fprintf(out,"\n\tmov\trbp, [rsp]\t;FUNC end restore old BP\n");
+	fprintf(out,"\tmov\trsp, [rsp+8]\t;FUNC end restore old SP\n");
+	if(strcmp(currentFunction, "main") == 0)
+		fprintf(out,"\tmov\trsp, rbp\t;stack and BP need to be same on exit for main\n");
+	fprintf(out,"\tret\n");
+}//end emitReturn()
 
 

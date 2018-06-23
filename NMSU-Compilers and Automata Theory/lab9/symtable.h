@@ -16,16 +16,15 @@
 
     
 
-#include "lab9ast.h"
+#include "ast.h"
 
 #ifndef _SYMTAB 
 #define _SYMTAB
 
-//int mem;
 void Display();
 int Delete();
 
-int FetchAddr (char *lab);
+//int FetchAddr (char *lab);
 
 struct SymbTab
 {
@@ -40,10 +39,10 @@ struct SymbTab
      struct SymbTab *next;
 };
 
-struct SymbTab * Search(char name[], int level, int recur );
-
-struct SymbTab * Insert(char *name, enum OPERATORS Type, int isafunc, int  level, int mysize, int offset, ASTnode * fparms );
-//my functions
 char * CreateTemp();
-int compareFomrals(ASTnode*, ASTnode*);
+char * CreateLabel();
+struct SymbTab * Insert(char *name, enum OPERATORS Type, int isafunc, int  level, int mysize, int offset, ASTnode * fparms );
+void PrintSym(struct SymbTab *s);
+struct SymbTab * Search(char name[], int level, int recur);
+int CompareFormals(ASTnode *fparms, ASTnode *args);
 #endif

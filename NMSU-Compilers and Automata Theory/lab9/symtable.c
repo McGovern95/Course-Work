@@ -17,12 +17,24 @@
     
 #include <string.h>
 #include "symtable.h"
-#include "lab9ast.h"
 
 int GTEMP=0;  /* Global Temp counter */
 
 char * CreateTemp()
-{    char hold[100];
+{    
+     char hold[100];
+     char *s;
+     sprintf(hold,"_T%d",GTEMP++);
+     s=strdup(hold);
+     return (s);
+
+}
+
+int LTEMP=0;  /* Global Temp counter */
+
+char * CreateLabel()
+{    
+     char hold[100];
      char *s;
      sprintf(hold,"_L%d",GTEMP++);
      s=strdup(hold);
@@ -30,7 +42,7 @@ char * CreateTemp()
 
 }
 
-struct SymbTab * Search(char name[], int level, int recur );
+//struct SymbTab * Search(char name[], int level, int recur );
 
 
 struct SymbTab *first=NULL;   /* global pointers into the symbol table */
@@ -168,18 +180,16 @@ int Delete(int level)
           }
 
       }
-
     return(SIZE);
 }
-//my compareFormals function
-int compareFormals(ASTnode *fparms, ASTnode *args){
-	if(fparms == NULL && args == NULL)
-	   return(1);
-	if(fparms == NULL || args ==NULL)
-	   return(0);
-	if(fparms->istype == args->istype)
-	    return(compareFormals(fparms->next,args->next));
-	return(0);
-}//end compareFormals();
 
+int CompareFormals(ASTnode *fparms, ASTnode *args){
+	if(fparms == NULL && args == NULL)
+		return(1);
+	if(fparms == NULL || args == NULL)
+		return(0);
+	if(fparms->istype == args->istype)
+		return(CompareFormals(fparms->next, args->next));
+	return(0);
+}
 

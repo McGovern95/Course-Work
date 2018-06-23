@@ -1,31 +1,28 @@
-#ifndef EMIT_H
-#define EMIT_H
- 
+#ifndef EMITAST_H
+#define EMITAST_H
+
+//prototype info
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <malloc.h>
 
+#include "ast.h"
+
 #define WSIZE 8
 
-int GLABEL;
-char *CURRENT_FUNCTION;
+char *currentFunction;
 
-void emitNASM(ASTnode *p, FILE *output);
-void emitGlobals(ASTnode *p,FILE *output);
-void emitStrings(ASTnode *p,FILE *output);
-void emitText(ASTnode *p,FILE *output);
-int max(int maxoffset, int offset);
-void emitReturn(FILE *output);
-void emitIdentifier(ASTnode *p,FILE *output);
-void emitExpr(ASTnode *p, FILE *output);
-void emitCall(ASTnode *p, FILE *output);
-
-/*void emit(FILE *output, char *label, char *command, char *comment){
-
-	char s[100];
-	fprintf(fp, "%s\t%s\t\t%s\n", label, command, comment);
-}*/
+void emitNASM(ASTnode *p, FILE *out);
+void ASTglobals(ASTnode *p, FILE *out);
+void ASTstrings(ASTnode *p, FILE *out);
+void ASTtext(ASTnode *p, FILE *out);
+void emitExpr(ASTnode *p, FILE *out);
+void emitIdent(ASTnode *p, FILE *out);
+void emitFunction(ASTnode *p, FILE *out);
+void evaluateArgs(ASTnode *p, FILE *out);
+void emitArgsToParams(ASTnode *arg, ASTnode *param, int functionSize, FILE *out);
+void emitReturn(ASTnode *p, FILE *out);
 
 #endif

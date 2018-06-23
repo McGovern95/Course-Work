@@ -1,44 +1,62 @@
-int y;
-int b[100];
-int main(void){
+int x;
+int y[10];
 
+int sumArray(void)
+{
+	int i;
+	int sum;
+	sum = 0;
+	i = 1;
+	while (i <= 10)
+	{
+		sum = sum + y[i];
+		i = i + 1;
+	}
+	write sum;
+	return sum;
+}
 
-	int x;
-	int z;
-	int a;
-
-	write "enter a number";
-	read y;
-	write y;
-	write "read and write success!";
-
-	x = 0;
-	z = 0;
-	a = 2;
-
-	write "value of x for while";
+int foo(int x, int y){
+	write "x";	
 	write x;
-	while(x<5){
-		write "while success!";
-		write x;
-		x=x+1; 
-	}
-	if (z<1){
-		write "if success!";
-		z=z+1;
-	}
-	if(a<1){
-		write "SHOULD NOT GO HERE";
-	}else{write "else success!";
-	 }
+	write "y";
+	write y;
+	return x*y;
+}
 
-	write "math operator tests";
-	write 5+5-5;
-    write 10/5*2;
-    write 5+5-5*1/1;
 
-    write "array test";
-    b[26] = 5;
-    write b[25+1];
-   
+int main(void)
+{	
+	int a;
+	int b;
+	int i;
+	i = 1;
+	read a;
+	b = 10;
+	write "Testing Function Returns";
+	write foo(a,foo(i,b));
+	write "Array fill test";
+	while (	i <= 10)
+	{
+		y[i + 1 - 1] = i;
+		i = i + 1;
+	}
+	write 1+2+3+4+5+6+7+8+9+10;
+	if(sumArray()==55){
+		write "equals 55";
+	}
+	else
+	{
+		write "nequals 55";
+	}
+
+	if(sumArray()!=0){
+		write "nequals 0";
+	}
+	else
+	{
+		write "equals 55";
+	}
+
+	
 }

@@ -3,11 +3,12 @@
 * Christian McGovern
 * Lab 6, 2/28
 */
+
 %{
 
 int mydebug=0;
 int lineno=1;
-#include "lab9ast.h"
+#include "ast.h"
 #include "symtable.h"
 #include "y.tab.h"
 
