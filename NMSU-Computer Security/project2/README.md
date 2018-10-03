@@ -1,6 +1,7 @@
  
  #  DES-CBC Encryption/Decryption program
 
+This program implements the DES-CBC cipher to encrypt a file and decrypt using either a supplied key & iv or a randomly generated key & iv.
 
 
 Included files: 
