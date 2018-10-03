@@ -1,4 +1,4 @@
-#	SHA-1 implementation 
+#	SHA-1 Implementation 
 
  Description: 
 	This program uses SHA-1 algorithm to output a HASH message digest from a txt file
