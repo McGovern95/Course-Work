@@ -1,5 +1,9 @@
 #	Signature and Validation C program 
 
+ This program demonstrates encrypting and signing a file while also decrypting the file and validating the signature, using OpenSSL's libaries. 
+ 
+
+
 
  Included Files:
 
