@@ -1,4 +1,4 @@
-# Basketball team database project written in php. 
+# Basketball Team Management  
 
 Included Files:
 
