@@ -1,4 +1,4 @@
-#	Signature and Validation C program 
+#	Signature and Validation 
 
  This program demonstrates encrypting and signing a file while also decrypting the file and validating the signature, using OpenSSL's libaries. 
  
@@ -42,7 +42,7 @@ Resources:
 
 	   .p12 file generated from http://www.cacert.org/
 
-	   all sign/verify and des  libaries from https://www.openssl.org/docs/manmaster/man7/evp.html
+	   all sign/verify and des libaries from https://www.openssl.org/docs/manmaster/man7/evp.html
 	   
 	
 
