@@ -1,4 +1,4 @@
-# Solar Panel program
+# Solar Panel
 
 Uses light sensors and motors to orient itself in the direction of the sun. Written in Assembly and C. 
 
