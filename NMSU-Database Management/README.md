@@ -10,5 +10,10 @@ Included Files:
 
 Instructions: 
 
-			  Use mySQL for database creation using createDB.SQL and DataDB.sql
+			  Use mySQL for database creation using createDB.SQL and DataDB.SQL
+			  for local connections use: 
+$servername = "localhost";
+$username = "root";
+$password = "password";
+$dbname = "test";
 			  using a server which supports php you may use the public_html folder to navigate the database
