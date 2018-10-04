@@ -1,5 +1,5 @@
 # Course-Work
-All academic course work I've done. These include assignments and projects from the following classes:
+Most academic course work I've done. These include assignments and projects from the following classes:
 # Leeward Community College
 -ICS 211: Computer Science II
 
