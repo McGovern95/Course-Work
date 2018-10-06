@@ -1,5 +1,7 @@
 # Basketball Team Management  
 
+A website that allows basic management of a basketball team. Using MySQL for backend and PHP/HTML for frontend. 
+
 Included Files:
 
 	SRC: CREATEDB.SQL DataDB.sql db_connection.php index.php session.php utility.php
