@@ -24,6 +24,6 @@
 	with the supplied files you can use: 
 	./NASMout -o output.asm < test.c
 
-	The program will output asm code to parameter output. Reccomend .asm file so you can test the code.
+	The program will output asm code to parameter output. Recomend .asm file so you can test the code.
 	
 	
